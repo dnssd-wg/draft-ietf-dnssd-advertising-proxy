@@ -1,11 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE rfc SYSTEM "rfc2629-xhtml.ent">
 
-<rfc xmlns:xi="http://www.w3.org/2001/XInclude" consensus="true"
-     category="std" docName="draft-sctl-advertising-proxy-01" ipr="trust200902"
+<rfc xmlns:xi="http://www.w3.org/2001/XInclude" version="3" consensus="true"
+     category="std" docName="draft-sctl-advertising-proxy-02" ipr="trust200902"
      obsoletes="" updates="" submissionType="IETF" xml:lang="en"
-     tocInclude="false" tocDepth="3" symRefs="true" sortRefs="false"
-     version="3">
+     tocInclude="true" tocDepth="3" symRefs="true" sortRefs="false">
 
   <front>
     <title abbrev="Advertising Proxy for DNS-SD SRP">Advertising Proxy for DNS-SD Service Registration Protocol</title>
@@ -40,7 +39,7 @@
       </address>
     </author>
 
-    <date year='2021' month='February' day='22'/>
+    <date year='2021' month='July' day='12'/>
 
     <area>INT</area>
     <workgroup>DNSSD</workgroup>
@@ -50,9 +49,9 @@
 
     <abstract>
       <t>An Advertising Proxy allows a device
-      that accepts service registra-tions using
+      that accepts service registrations using
       Service Registration Protocol (SRP)
-      to make those regis-trations visible
+      to make those registrations visible
       to legacy clients that only implement Multicast DNS.</t>
     </abstract>
   </front>
@@ -97,7 +96,7 @@
       One variant is pure end-to-end unicast,
       with services
       using unicast Service Registration Protocol
-      <xref target="I-D.sctl-service-registration"/>
+      <xref target="I-D.ietf-dnssd-srp"/>
       to register with a service registry,
       and clients
       using unicast DNS Push Notification subscriptions
@@ -128,7 +127,7 @@
       with a service registry.
       The service registry accepts service registrations
       using unicast Service Registration Protocol
-      <xref target="I-D.sctl-service-registration"/>,
+      <xref target="I-D.ietf-dnssd-srp"/>,
       and makes those service registrations visible,
       both to remote clients using unicast DNS Push Notifications
       <xref target="RFC8765"/>
@@ -139,7 +138,7 @@
 
     <section numbered="true">
       <name>Conventions and Terminology Used in This Document</name>
-     
+
         <t>
         The key words "<bcp14>MUST</bcp14>", "<bcp14>MUST NOT</bcp14>",
         "<bcp14>REQUIRED</bcp14>", "<bcp14>SHALL</bcp14>", "<bcp14>SHALL
@@ -147,7 +146,7 @@
         "<bcp14>RECOMMENDED</bcp14>", "<bcp14>NOT RECOMMENDED</bcp14>",
         "<bcp14>MAY</bcp14>", and "<bcp14>OPTIONAL</bcp14>" in this document are
         to be interpreted as
-        described in BCP&nbsp;14 <xref target="RFC2119"/> <xref target="RFC8174"/> 
+        described in BCP&nbsp;14 <xref target="RFC2119"/> <xref target="RFC8174"/>
         when, and only when, they appear in all capitals, as shown here.
         </t>
     </section>
@@ -163,7 +162,7 @@
       a service registry
       (a DNS authoritative server that implements
       Service Registration Protocol
-      <xref target="I-D.sctl-service-registration"/>).
+      <xref target="I-D.ietf-dnssd-srp"/>).
       A client can send registration requests
       for any valid DNS records to a service registry,
       though in practice the most common use is to
@@ -197,7 +196,7 @@
         <t>
         In the event that an SRP client attempts to register
         a record with a name that was already created in that
-        registry by a different SRP client, 
+        registry by a different SRP client,
         or is otherwise disallowed by policy,
         a name conflict is reported and the new
         client is required to choose a new name.
@@ -224,15 +223,11 @@
 
         <ol>
         <li>During the SRP validation process, because
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         another SRP client has already registered the same name.</li>
         <li>Immediately while the Advertising Proxy
         is registering the name, if the Multicast DNS
         uniqueness probes detect a conflicting record.</li>
         <li><t>After the name has been successfully registered,
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         but before the response has been sent to the client.</t></li>
         <li>After the initial response has been sent to the client.</li>
         </ol>
@@ -271,6 +266,14 @@
         in the SRP specification. Any other failures not contemplated
         in the SRP specification return SERVFAIL.
         </t>
+	<section>
+	  <name>Name Conflicts in Managed Namespaces</name>
+	  <t>In some cases, the name conflict resolution behavior described above is neither needed nor desirable. For instance, when the set of expected SRP clients is known to include only clients added with some kind of commissioning or on-boarding protocol that guarantees that hostnames are unique, it may cause serious problems to rename such a device.</t>
+	  <t>In this situation, the Advertising Proxy behavior should be different: it should be assumed that all names registered with SRP that survive SRP's first-come, first-serve name conflict detection are indeed as intended. Any conflict that may be discovered as a result of advertising those names using mDNS can be assumed to either be an error or an attack, and there is no benefit to renaming such a device: it will not be usable under its new name.</t>
+	  <t>In this case, the Advertising Proxy simply performs normal SRP first-come, first-serve naming and then updates its local idea of the SRP namespace. This update is then reflected in mDNS. If a conflict is detected, the Advertising Proxy schedules a new attempt to claim the name at some time in the future: long enough that these re-attempts to not generate excessive multicast traffic, but short enough that an accidental conflict is cured in a reasonable timeframe.</t>
+	  <t>The downside to this approach is that if the device on the multicast network persists in claiming the name, the SRP client that claimed it will be unreachable. Networks that use Advertising Proxies configured to behave in this way should provide a way to rename the device that is suffering the conflict. However, if the failure is the result of a malicious attack by a device on the multicast network, that device will have to be identified and removed before the attack can be eliminated.</t>
+	  <t>In order to address this problem, it may be advisable to provide with a way for the advertising proxy to inform the mDNS service that it should continue to advertise the name that is in conflict, rather than ceasing to do so when the conflict is detected.</t>
+	</section>
       </section>
 
       <section numbered="true">
@@ -281,7 +284,7 @@
         some translation needs to be performed before the
         Advertising Proxy makes the registered unicast data
         visible using Multicast DNS.
-        Specifically, 
+        Specifically,
         the unicast DNS domain name suffix configured
         for Advertising Proxy use
         is stripped off and replaced
@@ -340,7 +343,7 @@
         by the service registry is required.
         In most cases it is acceptable for devices registering
         with a service registry to register all of their
-        available addresses, and a client implementing 
+        available addresses, and a client implementing
         <xref target="RFC8305">Happy Eyeballs</xref>
         connecting to that service will automatically
         select an appropriate address to use.
@@ -380,7 +383,7 @@
         reconfirm operations have no effect.
 
         If a device uses unicast Service Registration Protocol
-        <xref target="I-D.sctl-service-registration"/>
+        <xref target="I-D.ietf-dnssd-srp"/>
         to register its services
         with a service registry with Advertising Proxy capability,
         and the device then gets disconnected from the network,
@@ -419,7 +422,7 @@
         This RECONFIRM message provides an unambiguous signal
         to the service registry that it may be retaining stale records.
         (A future update to the Service Registration Protocol document
-        <xref target="I-D.sctl-service-registration"/>
+        <xref target="I-D.ietf-dnssd-srp"/>
         will consider ways that this unambiguous signal
         can be used to trigger expedited removal of stale data.)
         </t>
@@ -441,7 +444,7 @@
 
   <back>
 <displayreference target="I-D.cheshire-dnssd-roadmap" to="ROADMAP"/>
-<displayreference target="I-D.sctl-service-registration" to="SRP"/>
+<displayreference target="I-D.ietf-dnssd-srp" to="SRP"/>
 <displayreference target="I-D.ietf-dnssd-mdns-relay" to="RELAY"/>
 <displayreference target="I-D.ietf-mboned-ieee802-mcast-problems" to="MCAST"/>
 
@@ -467,7 +470,7 @@
           href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8765.xml"/>
 
         <xi:include
-          href="https://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.sctl-service-registration.xml"/>
+          href="https://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-dnssd-srp.xml"/>
       </references>
 
       <references>
