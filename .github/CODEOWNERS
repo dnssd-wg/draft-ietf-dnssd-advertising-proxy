@@ -1,0 +1,3 @@
+# Automatically generated CODEOWNERS
+# Regenerate with `make update-codeowners`
+draft-ietf-dnssd-advertising-proxy.xml cheshire@apple.com elemon@apple.com
