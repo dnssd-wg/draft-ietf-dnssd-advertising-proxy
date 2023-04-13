@@ -2,7 +2,7 @@
 <!DOCTYPE rfc SYSTEM "rfc2629-xhtml.ent">
 
 <rfc xmlns:xi="http://www.w3.org/2001/XInclude" version="3" consensus="true"
-     category="std" docName="draft-ietf-dnssd-advertising-proxy-02" ipr="trust200902"
+     category="std" docName="draft-ietf-dnssd-advertising-proxy-latest" ipr="trust200902"
      obsoletes="" updates="" submissionType="IETF" xml:lang="en"
      tocInclude="true" tocDepth="3" symRefs="true" sortRefs="false">
 
@@ -39,7 +39,7 @@
       </address>
     </author>
 
-    <date year='2023' month='January' day='9'/>
+    <date/>
 
     <area>INT</area>
     <workgroup>DNSSD</workgroup>
@@ -52,6 +52,21 @@
       using the DNSSD Service Registration Protocol (SRP), using multicast DNS. This allows
       legacy clients to discover services registered with SRP using multicast DNS.</t>
     </abstract>
+    <note removeInRFC="true">
+      <name>About This Document</name>
+      <t>
+        The latest revision of this draft can be found at <eref target="https://dnssd-wg.github.io/draft-ietf-dnssd-advertising-proxy/draft-ietf-dnssd-advertising-proxy.html"/>.
+        Status information for this document may be found at <eref target="https://datatracker.ietf.org/doc/draft-ietf-dnssd-advertising-proxy/"/>.
+      </t>
+      <t>
+        Discussion of this document takes place on the
+        DNSSD Working Group mailing list (<eref target="mailto:dnssd@ietf.org"/>),
+        which is archived at <eref target="https://mailarchive.ietf.org/arch/browse/dnssd/"/>.
+        Subscribe at <eref target="https://www.ietf.org/mailman/listinfo/dnssd/"/>.
+      </t>
+      <t>Source for this draft and an issue tracker can be found at
+        <eref target="https://github.com/dnssd-wg/draft-ietf-dnssd-advertising-proxy"/>.</t>
+    </note>
   </front>
 
   <middle>
