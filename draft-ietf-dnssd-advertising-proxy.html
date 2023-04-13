@@ -1,0 +1,1803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta content="Common,Latin" name="scripts">
+<meta content="initial-scale=1.0" name="viewport">
+<title>Advertising Proxy for DNS-SD Service Registration Protocol</title>
+<meta content="Stuart Cheshire" name="author">
+<meta content="Ted Lemon" name="author">
+<meta content="
+       An Advertising Proxy advertises the contents of a DNS zone, for example maintained
+      using the DNSSD Service Registration Protocol (SRP), using multicast DNS. This allows
+      legacy clients to discover services registered with SRP using multicast DNS. 
+    " name="description">
+<meta content="xml2rfc 3.17.0" name="generator">
+<meta content="Multicast DNS" name="keyword">
+<meta content="DNS-Based Service Discovery" name="keyword">
+<meta content="draft-ietf-dnssd-advertising-proxy-latest" name="ietf.draft">
+<!-- Generator version information:
+  xml2rfc 3.17.0
+    Python 3.10.10
+    appdirs 1.4.4
+    ConfigArgParse 1.5.3
+    google-i18n-address 2.5.2
+    html5lib 1.1
+    intervaltree 3.1.0
+    Jinja2 3.1.2
+    lxml 4.9.2
+    MarkupSafe 2.1.1
+    pycountry 22.3.5
+    PyYAML 6.0
+    requests 2.28.1
+    setuptools 65.6.0
+    six 1.16.0
+    wcwidth 0.2.6
+-->
+<link href="draft-ietf-dnssd-advertising-proxy.xml" rel="alternate" type="application/rfc+xml">
+<link href="#copyright" rel="license">
+<style type="text/css">@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Lora SemiBold'), local('Lora-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-semibold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Cabin Condensed';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Cabin Condensed SemiBold'), local('CabinCondensed-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/cabincondensed-semibold-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Cabin Condensed';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Cabin Condensed SemiBold'), local('CabinCondensed-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/cabincondensed-semibold-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Cabin Condensed';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Cabin Condensed SemiBold'), local('CabinCondensed-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/cabincondensed-semibold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Oxygen Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Oxygen Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  color-scheme: light dark;
+  --background-color: #fff;
+  --text-color: #222;
+  --title-color: #191919;
+  --link-color: #2a6496;
+  --highlight-color: #f9f9f9;
+  --line-color: #eee;
+  --pilcrow-weak: #ddd;
+  --pilcrow-strong: #bbb;
+  --small-font-size: 14.5px;
+  --font-mono: 'Oxygen Mono', monospace;
+  scrollbar-color: #bbb #eee;
+}
+body {
+  max-width: 600px;
+  margin: 75px auto;
+  padding: 0 5px;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  font: 16px/22px "Lora", serif;
+  scroll-behavior: smooth;
+}
+
+.ears {
+  display: none;
+}
+
+/* headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Cabin Condensed", sans-serif;
+  font-weight: 600;
+  margin: 0.8em 0 0.3em;
+  font-size-adjust: 0.5;
+  color: var(--title-color);
+}
+h1#title {
+  font-size: 32px;
+  line-height: 40px;
+  clear: both;
+}
+h1#title, h1#rfcnum {
+  margin: 1.5em 0 0.2em;
+}
+h1#rfcnum + h1#title {
+  margin: 0.2em 0;
+}
+
+h1, h2, h3 {
+  font-size: 22px;
+  line-height: 27px;
+}
+h4, h5, h6 {
+  font-size: 20px;
+  line-height: 24px;
+}
+
+/* general structure */
+.author {
+  padding-bottom: 0.3em;
+}
+#abstract+p {
+  font-size: 18px;
+  line-height: 24px;
+}
+#abstract+p code, #abstract+p samp, #abstract+p tt {
+  font-size: 16px;
+  line-height: 0;
+}
+
+p {
+  padding: 0;
+  margin: 0.5em 0;
+  text-align: left;
+}
+div {
+  margin: 0;
+}
+.alignRight.art-text {
+  background-color: var(--highlight-color);
+  border: 1px solid var(--line-color);
+  border-radius: 3px;
+  padding: 0.5em 1em 0;
+  margin-bottom: 0.5em;
+}
+.alignRight.art-text pre {
+  padding: 0;
+  width: auto;
+}
+.alignRight {
+  margin: 1em 0;
+}
+.alignRight > *:first-child {
+  border: none;
+  margin: 0;
+  float: right;
+  clear: both;
+}
+.alignRight > *:nth-child(2) {
+  clear: both;
+  display: block;
+  border: none;
+}
+svg {
+  display: block;
+}
+/* font-family isn't space-separated, but =~ will have to do */
+svg[font-family~="monospace" i], svg [font-family~="monospace" i] {
+  font-family: var(--font-mono);
+}
+.alignCenter.art-text {
+  background-color: var(--highlight-color);
+  border: 1px solid var(--line-color);
+  border-radius: 3px;
+  padding: 0.5em 1em 0;
+  margin-bottom: 0.5em;
+}
+.alignCenter.art-text pre {
+  padding: 0;
+  width: auto;
+}
+.alignCenter {
+  margin: 1em 0;
+}
+.alignCenter > *:first-child {
+  border: none;
+  /* this isn't optimal, but it's an existence proof.  PrinceXML doesn't
+     support flexbox yet.
+  */
+  display: table;
+  margin: 0 auto;
+}
+
+/* lists */
+ol, ul {
+  padding: 0;
+  margin: 0 0 0.5em 2em;
+}
+:is(ol, ul) :is(ol, ul) {
+  margin-left: 1em;
+}
+li {
+  margin: 0 0 0.25em 0;
+}
+.ulCompact li {
+  margin: 0;
+}
+ul.empty, .ulEmpty {
+  list-style-type: none;
+}
+ul.empty li, .ulEmpty li {
+  margin-top: 0.5em;
+}
+:is(ul, ol).compact, .ulCompact, .olCompact {
+  line-height: 1;
+  margin: 0 0 0 2em;
+}
+
+/* definition lists */
+dl {
+  clear: left;
+  --indent: 3ch;
+  /* --indent: attr(indent ch); not supported in any browser, but we can dream */
+}
+dl.olPercent {
+  --indent: 5ch;
+}
+dl > dt {
+  float: left;
+  margin-right: 2ch;
+  min-width: 8ch;
+}
+dl.dlNewline > dt {
+  float: none;
+}
+dl > dd {
+  margin-bottom: .8em;
+  margin-left: var(--indent) !important; /* stupid element overrides */
+  min-height: 2ex;
+}
+dl.olPercent > dt {
+  min-width: calc(var(--indent) - 2ch);
+}
+:is(dl.compact, .dlCompact) > dd {
+  margin-bottom: 0;
+}
+:is(dl.compact, .dlCompact) > dd > :is(:first-child, .break:first-child + *) {
+  margin-top: 0;
+}
+:is(dl.compact, .dlCompact) > dd > :is(:last-child) {
+  margin-bottom: 0;
+}
+dl > dd > dl {
+  margin-top: 0.5em;
+  margin-bottom: 0;
+}
+:is(dd, span).break {
+  display: none;
+}
+
+/* links */
+a, a[href].selfRef:hover {
+  text-decoration: none;
+}
+a[href] {
+  color: var(--link-color);
+}
+a[href].selfRef, .iref + a[href].internal {
+  color: var(--text-color);
+}
+a[href]:hover {
+  text-decoration: underline;
+}
+a[href].selfRef:hover {
+  background-color: var(--highlight-color);
+}
+a.xref:is(.cite, .auto), :is(#status-of-memo, #copyright) a {
+  white-space: nowrap;
+}
+
+/* Figures */
+tt, code, pre {
+  background-color: var(--highlight-color);
+  font: 14px/22px var(--font-mono);
+}
+tt, code {
+  /* changing the font for inline elements leads to different ascender
+     and descender heights; as we want to retain baseline alignment,
+     remove leading to avoid altering the final height of lines
+     note: this fails if these blocks take an entire line,
+     a different solution would be great */
+  line-height: 0;
+}
+:is(h1, h2, h3, h4, h5, h6) :is(tt, code) {
+  font-size: 84%;
+}
+pre {
+  border: 1px solid var(--line-color);
+  font-size: 13.5px;
+  line-height: 16px;
+  letter-spacing: -0.2px;
+  margin: 5px;
+  padding: 5px;
+}
+img {
+  max-width: 100%;
+}
+figure {
+  margin: 0.5em 0;
+  padding: 0;
+}
+figure blockquote {
+  margin: 0.8em 0.4em 0.4em;
+}
+figcaption, caption {
+  font-style: italic;
+  margin: 0.5em 1.5em;
+  text-align: left;
+}
+@media screen {
+  /* Auto-collapse boilerplate. */
+  :is(#status-of-memo, #copyright) p {
+    margin: -2px 0;
+    max-height: 0;
+    transition: max-height 2s ease, margin 0.5s ease 0.5s;
+    overflow: hidden;
+  }
+  :is(#status-of-memo, #copyright):hover p,
+  :is(#status-of-memo, #copyright) h2:target ~ p {
+    margin: 0.5em 0;
+    max-height: 500px;
+    overflow: auto;
+  }
+  pre, svg {
+    display: inline-block;
+    overflow-x: auto;
+  }
+  pre {
+    max-width: 100%;
+    width: calc(100% - 22px - 1em);
+  }
+  svg {
+    max-width: calc(100% - 22px - 1em);
+  }
+  figure pre {
+    display: block;
+    width: calc(100% - 25px);
+  }
+  :is(pre, svg) + .pilcrow {
+    display: inline-block;
+    vertical-align: text-bottom;
+    padding-bottom: 8px;
+  }
+}
+
+/* aside, blockquote */
+aside, blockquote {
+  margin-left: 0;
+  padding: 0 2em;
+  font-style: italic;
+}
+blockquote {
+  margin: 1em 0;
+}
+cite {
+  display: block;
+  text-align: right;
+  font-style: italic;
+}
+
+/* tables */
+table {
+  max-width: 100%;
+  margin: 0 0 1em;
+  border-collapse: collapse;
+}
+table.right {
+  margin-left: auto;
+}
+table.center {
+  margin-left: auto;
+  margin-right: auto;
+}
+table.left {
+  margin-right: auto;
+}
+thead, tbody {
+  border: 1px solid var(--line-color);
+}
+th, td {
+  text-align: left;
+  vertical-align: top;
+  padding: 5px 10px;
+}
+th {
+  background-color: var(--line-color);
+}
+:is(tr:nth-child(2n), thead+tbody > tr:nth-child(2n+1)) > td {
+  background-color: var(--background-color);
+}
+:is(tr:nth-child(2n+1), thead+tbody > tr:nth-child(2n)) > td {
+  background-color: var(--highlight-color);
+}
+table caption {
+  margin: 0;
+  padding: 3px 0 3px 1em;
+}
+table p {
+  margin: 0;
+}
+
+/* pilcrow */
+a.pilcrow {
+  margin-left: 3px;
+  opacity: 0.2;
+  user-select: none;
+}
+a.pilcrow[href] { color: var(--pilcrow-weak); }
+a.pilcrow[href]:hover { text-decoration: none; }
+@media not print {
+  :hover > a.pilcrow {
+    opacity: 1;
+  }
+  a.pilcrow[href]:hover {
+    color: var(--pilcrow-strong);
+    background-color: transparent;
+  }
+}
+@media print {
+  a.pilcrow {
+    display: none;
+  }
+}
+
+/* misc */
+hr {
+  border: 0;
+  border-top: 1px solid var(--line-color);
+}
+.bcp14 {
+  font-variant: small-caps;
+  font-weight: 600;
+  font-size: var(--small-font-size);
+}
+.role {
+  font-variant: all-small-caps;
+}
+sub, sup {
+  line-height: 1;
+  font-size: 80%;
+}
+
+/* info block */
+#identifiers {
+  margin: 0;
+  font-size: var(--small-font-size);
+  line-height: 18px;
+  --identifier-width: 15ch;
+}
+#identifiers dt {
+  width: var(--identifier-width);
+  min-width: var(--identifier-width);
+  clear: left;
+  float: left;
+  text-align: right;
+}
+#identifiers dd {
+  margin: 0;
+  margin-left: calc(1em + var(--identifier-width)) !important;
+  min-width: 5em;
+}
+#identifiers .authors .author {
+  display: inline-block;
+  margin-right: 1.5em;
+}
+#identifiers .authors .org {
+  font-style: italic;
+}
+
+/* The prepared/rendered info at the very bottom of the page */
+.docInfo {
+  color: #999;
+  font-size: 0.9em;
+  font-style: italic;
+  margin-top: 2em;
+}
+.docInfo .prepared {
+  float: left;
+}
+.docInfo .prepared {
+  float: right;
+}
+
+/* table of contents */
+#toc {
+  padding: 0.75em 0 2em 0;
+  margin-bottom: 1em;
+}
+#toc nav ul {
+  margin: 0 0.5em 0 0;
+  padding: 0;
+  list-style: none;
+}
+#toc nav li {
+  line-height: 1.3em;
+  margin: 0.75em 0;
+  padding-left: 1.2em;
+  text-indent: -1.2em;
+}
+#toc a.xref {
+  white-space: normal;
+}
+/* references */
+.references dt {
+  text-align: right;
+  font-weight: bold;
+  min-width: 7em;
+}
+.references dt:target::before {
+  content: "⇒";
+  width: 15px;
+  margin: 0 10px 0 -25px;
+}
+.references dd {
+  margin-left: 8em !important;
+  overflow: auto;
+}
+
+.refInstance {
+  margin-bottom: 1.25em;
+}
+
+.references .ascii {
+  margin-bottom: 0.25em;
+}
+
+/* index */
+#rfc\.index\.index + ul {
+  margin-left: 0;
+}
+
+/* authors */
+address.vcard {
+  font-style: normal;
+  margin: 1em 0;
+}
+address.vcard .nameRole {
+  font-weight: 700;
+  margin-left: 0;
+}
+address.vcard .label {
+  margin: 0.5em 0;
+}
+address.vcard .type {
+  display: none;
+}
+.alternative-contact {
+  margin: 1.5em 0 1em;
+}
+hr.addr {
+  border-top: 1px dashed;
+  margin: 0;
+  color: #ddd;
+  max-width: calc(100% - 16px);
+}
+@media (min-width: 500px) {
+  #authors-addresses > section {
+    column-count: 2;
+    column-gap: 20px;
+  }
+  #authors-addresses > section > h2 {
+    column-span: all;
+  }
+  /* hack for break-inside: avoid-column */
+  #authors-addresses address {
+    display: inline-block;
+    break-inside: avoid-column;
+  }
+}
+
+.rfcEditorRemove p:first-of-type {
+  font-style: italic;
+}
+.cref {
+  background-color: rgba(249, 232, 105, 0.3);
+  padding: 2px 4px;
+}
+.crefSource {
+  font-style: italic;
+}
+/* alternative layout for smaller screens */
+@media screen and (max-width: 929px) {
+  #toc {
+    position: fixed;
+    z-index: 2;
+    top: 0;
+    right: 0;
+    padding: 0;
+    margin: 0;
+    border-bottom: 1px solid #ccc;
+    opacity: 0.6;
+  }
+  #toc.active {
+      opacity: 1;
+  }
+  #toc h2 {
+    margin: 0;
+    padding: 2px 0 2px 6px;
+    padding-right: 1em;
+    font-size: 18px;
+    line-height: 24px;
+    min-width: 190px;
+    text-align: right;
+    background-color: #444;
+    color: white;
+    cursor: pointer;
+  }
+  #toc h2::before { /* css hamburger */
+    float: right;
+    position: relative;
+    width: 1em;
+    height: 1px;
+    left: -164px;
+    margin: 8px 0 0 0;
+    background: white none repeat scroll 0 0;
+    box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
+    content: "";
+  }
+  #toc nav {
+    display: none;
+    background-color: var(--background-color);
+    padding: 0.5em 1em 1em;
+    overflow: auto;
+    overscroll-behavior: contain;
+    height: calc(100vh - 48px);
+    border-left: 1px solid #ddd;
+  }
+  #toc.active nav {
+    display: block;
+  }
+  /* Make the collapsed ToC header render white on gray also when it's a link */
+  #toc h2 a,
+  #toc h2 a:link,
+  #toc h2 a:focus,
+  #toc h2 a:hover,
+  #toc a.toplink,
+  #toc a.toplink:hover {
+    color: white;
+    background-color: #444;
+    text-decoration: none;
+  }
+  #toc a.toplink {
+    margin-top: 2px;
+  }
+}
+
+/* alternative layout for wide screens */
+@media screen and (min-width: 930px) {
+  body {
+    padding-right: 360px;
+    padding-right: calc(min(180px + 20%, 500px));
+  }
+  #toc {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    right: calc(50vw - 480px);
+    width: 312px;
+    margin: 0;
+    padding: 0;
+    z-index: 1;
+  }
+  #toc h2 {
+    margin: 0;
+    padding: 0.25em 1em 1em 0;
+  }
+  #toc nav {
+    display: block;
+    height: calc(90vh - 84px);
+    bottom: 0;
+    padding: 0.5em 0 2em;
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+  #toc nav > ul  {
+    margin-bottom: 2em;
+  }
+  #toc ul {
+    margin: 0 0 0 4px;
+    font-size: var(--small-font-size);
+  }
+  #toc ul :is(p, li) {
+    margin: 2px 0;
+    line-height: 22px;
+  }
+  img { /* future proofing */
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* pagination */
+@media print {
+  body {
+    width: 100%;
+  }
+  p {
+    orphans: 3;
+    widows: 3;
+  }
+  #n-copyright-notice {
+    border-bottom: none;
+  }
+  #toc, #n-introduction {
+    page-break-before: always;
+  }
+  #toc {
+    border-top: none;
+    padding-top: 0;
+  }
+  figure, pre {
+    page-break-inside: avoid;
+  }
+  figure {
+    overflow: scroll;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+  }
+  h2+*, h3+*, h4+*, h5+*, h6+* {
+    page-break-before: avoid;
+  }
+  pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 10pt;
+  }
+  table {
+    border: 1px solid #ddd;
+  }
+  td {
+    border-top: 1px solid #ddd;
+  }
+}
+
+@page :first {
+  padding-top: 0;
+  @top-left {
+    content: normal;
+    border: none;
+  }
+  @top-center {
+    content: normal;
+    border: none;
+  }
+  @top-right {
+    content: normal;
+    border: none;
+  }
+}
+
+@page {
+  size: A4;
+  margin-bottom: 45mm;
+  padding-top: 20px;
+}
+
+/* Changes introduced to fix issues found during implementation */
+
+/* Separate body from document info even without intervening H1 */
+section {
+  clear: both;
+}
+
+/* Top align author divs, to avoid names without organization dropping level with org names */
+.author {
+  vertical-align: top;
+}
+
+/* Style section numbers with more space between number and title */
+.section-number {
+  padding-right: 0.5em;
+}
+
+/* Add styling for a link in the ToC that points to the top of the document */
+a.toplink {
+  float: right;
+  margin: 8px 0.5em 0;
+}
+
+/* Provide styling for table cell text alignment */
+table .text-left {
+  text-align: left;
+}
+table .text-center {
+  text-align: center;
+}
+table .text-right {
+  text-align: right;
+}
+
+/* Make the alternative author contact information look less like just another
+   author, and group it closer with the primary author contact information */
+.alternative-contact {
+  margin: 0.5em 0 0.25em 0;
+}
+address .non-ascii {
+  margin: 0 0 0 2em;
+}
+
+/* With it being possible to set tables with alignment
+  left, center, and right, { width: 100%; } does not make sense */
+table {
+  width: auto;
+}
+
+/* Avoid reference text that sits in a block with very wide left margin,
+   because of a long floating dt label.*/
+.references dd {
+  overflow: visible;
+}
+
+/* Control caption placement */
+caption {
+  caption-side: bottom;
+}
+
+/* Limit the width of the author address vcard, so names in right-to-left
+   script don't end up on the other side of the page. */
+
+address.vcard {
+  max-width: 20em;
+  margin-right: auto;
+}
+
+/* For address alignment dependent on LTR or RTL scripts */
+address div.left {
+  text-align: left;
+}
+address div.right {
+  text-align: right;
+}
+
+/* Give the table caption label the same styling as the figcaption */
+
+@media print {
+  .toplink {
+    display: none;
+  }
+
+  /* avoid overwriting the top border line with the ToC header */
+  #toc {
+    padding-top: 1px;
+  }
+
+  /* Avoid page breaks inside dl and author address entries */
+  dd {
+    page-break-before: avoid;
+  }
+  .vcard {
+    page-break-inside: avoid;
+  }
+
+}
+
+/* Dark mode. */
+@media (prefers-color-scheme: dark) {
+:root {
+  --background-color: #121212;
+  --text-color: #f0f0f0;
+  --title-color: #fff;
+  --link-color: #4da4f0;
+  --highlight-color: #282828;
+  --line-color: #444;
+  --pilcrow-weak: #444;
+  --pilcrow-strong: #666;
+  scrollbar-color: #777 #333;
+}
+}
+
+/* SVG Trick: a prefix match works because only black and white are allowed */
+svg :is([stroke="black"], [stroke^="#000"]) {
+  stroke: var(--text-color);
+}
+svg :is([stroke="white"], [stroke^="#fff"]) {
+  stroke: var(--background-color);
+}
+svg :is([fill="black"], [fill^="#000"], :not([fill])) {
+  fill: var(--text-color);
+}
+svg :is([fill="white"], [fill^="#fff"]) {
+  fill: var(--background-color);
+}
+</style>
+
+</head>
+<body class="xml2rfc">
+<table class="ears">
+<thead><tr>
+<td class="left">Internet-Draft</td>
+<td class="center">Advertising Proxy for DNS-SD SRP</td>
+<td class="right">April 2023</td>
+</tr></thead>
+<tfoot><tr>
+<td class="left">Cheshire &amp; Lemon</td>
+<td class="center">Expires 15 October 2023</td>
+<td class="right">[Page]</td>
+</tr></tfoot>
+</table>
+<div id="external-metadata" class="document-information"></div>
+<div id="internal-metadata" class="document-information">
+<dl id="identifiers">
+<dt class="label-workgroup">Workgroup:</dt>
+<dd class="workgroup">DNSSD</dd>
+<dt class="label-published">Published:</dt>
+<dd class="published">
+<time datetime="2023-04-13" class="published">13 April 2023</time>
+    </dd>
+<dt class="label-intended-status">Intended Status:</dt>
+<dd class="intended-status">Standards Track</dd>
+<dt class="label-expires">Expires:</dt>
+<dd class="expires"><time datetime="2023-10-15">15 October 2023</time></dd>
+<dt class="label-authors">Authors:</dt>
+<dd class="authors">
+<div class="author">
+      <div class="author-name">S. Cheshire</div>
+<div class="org">Apple Inc.</div>
+</div>
+<div class="author">
+      <div class="author-name">T. Lemon</div>
+<div class="org">Apple Inc.</div>
+</div>
+</dd>
+</dl>
+</div>
+<h1 id="title">Advertising Proxy for DNS-SD Service Registration Protocol</h1>
+<section id="section-abstract">
+      <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
+<p id="section-abstract-1">An Advertising Proxy advertises the contents of a DNS zone, for example maintained
+      using the DNSSD Service Registration Protocol (SRP), using multicast DNS. This allows
+      legacy clients to discover services registered with SRP using multicast DNS.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+</section>
+<section class="note rfcEditorRemove" id="section-note.1">
+      <h2 id="name-about-this-document">
+<a href="#name-about-this-document" class="section-name selfRef">About This Document</a>
+      </h2>
+<p id="section-note.1-1">This note is to be removed before publishing as an RFC.<a href="#section-note.1-1" class="pilcrow">¶</a></p>
+<p id="section-note.1-2">
+        The latest revision of this draft can be found at <span><a href="https://dnssd-wg.github.io/draft-ietf-dnssd-advertising-proxy/draft-ietf-dnssd-advertising-proxy.html">https://dnssd-wg.github.io/draft-ietf-dnssd-advertising-proxy/draft-ietf-dnssd-advertising-proxy.html</a></span>.
+        Status information for this document may be found at <span><a href="https://datatracker.ietf.org/doc/draft-ietf-dnssd-advertising-proxy/">https://datatracker.ietf.org/doc/draft-ietf-dnssd-advertising-proxy/</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
+<p id="section-note.1-3">
+        Discussion of this document takes place on the
+        DNSSD Working Group mailing list (<span><a href="mailto:dnssd@ietf.org">mailto:dnssd@ietf.org</a></span>),
+        which is archived at <span><a href="https://mailarchive.ietf.org/arch/browse/dnssd/">https://mailarchive.ietf.org/arch/browse/dnssd/</a></span>.
+        Subscribe at <span><a href="https://www.ietf.org/mailman/listinfo/dnssd/">https://www.ietf.org/mailman/listinfo/dnssd/</a></span>.<a href="#section-note.1-3" class="pilcrow">¶</a></p>
+<p id="section-note.1-4">Source for this draft and an issue tracker can be found at
+        <span><a href="https://github.com/dnssd-wg/draft-ietf-dnssd-advertising-proxy">https://github.com/dnssd-wg/draft-ietf-dnssd-advertising-proxy</a></span>.<a href="#section-note.1-4" class="pilcrow">¶</a></p>
+</section>
+<div id="status-of-memo">
+<section id="section-boilerplate.1">
+        <h2 id="name-status-of-this-memo">
+<a href="#name-status-of-this-memo" class="section-name selfRef">Status of This Memo</a>
+        </h2>
+<p id="section-boilerplate.1-1">
+        This Internet-Draft is submitted in full conformance with the
+        provisions of BCP 78 and BCP 79.<a href="#section-boilerplate.1-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-2">
+        Internet-Drafts are working documents of the Internet Engineering Task
+        Force (IETF). Note that other groups may also distribute working
+        documents as Internet-Drafts. The list of current Internet-Drafts is
+        at <span><a href="https://datatracker.ietf.org/drafts/current/">https://datatracker.ietf.org/drafts/current/</a></span>.<a href="#section-boilerplate.1-2" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-3">
+        Internet-Drafts are draft documents valid for a maximum of six months
+        and may be updated, replaced, or obsoleted by other documents at any
+        time. It is inappropriate to use Internet-Drafts as reference
+        material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-4">
+        This Internet-Draft will expire on 15 October 2023.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="copyright">
+<section id="section-boilerplate.2">
+        <h2 id="name-copyright-notice">
+<a href="#name-copyright-notice" class="section-name selfRef">Copyright Notice</a>
+        </h2>
+<p id="section-boilerplate.2-1">
+            Copyright (c) 2023 IETF Trust and the persons identified as the
+            document authors. All rights reserved.<a href="#section-boilerplate.2-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.2-2">
+            This document is subject to BCP 78 and the IETF Trust's Legal
+            Provisions Relating to IETF Documents
+            (<span><a href="https://trustee.ietf.org/license-info">https://trustee.ietf.org/license-info</a></span>) in effect on the date of
+            publication of this document. Please review these documents
+            carefully, as they describe your rights and restrictions with
+            respect to this document. Code Components extracted from this
+            document must include Revised BSD License text as described in
+            Section 4.e of the Trust Legal Provisions and are provided without
+            warranty as described in the Revised BSD License.<a href="#section-boilerplate.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="toc">
+<section id="section-toc.1">
+        <a href="#" onclick="scroll(0,0)" class="toplink">▲</a><h2 id="name-table-of-contents">
+<a href="#name-table-of-contents" class="section-name selfRef">Table of Contents</a>
+        </h2>
+<nav class="toc"><ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1">
+            <p id="section-toc.1-1.1.1" class="keepWithNext"><a href="#section-1" class="auto internal xref">1</a>.  <a href="#name-introduction" class="internal xref">Introduction</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1">
+                <p id="section-toc.1-1.1.2.1.1" class="keepWithNext"><a href="#section-1.1" class="auto internal xref">1.1</a>.  <a href="#name-conventions-and-terminology" class="internal xref">Conventions and Terminology Used in This Document</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2">
+            <p id="section-toc.1-1.2.1"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-advertising-proxy" class="internal xref">Advertising Proxy</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.1">
+                <p id="section-toc.1-1.2.2.1.1" class="keepWithNext"><a href="#section-2.1" class="auto internal xref">2.1</a>.  <a href="#name-the-mdns-registrar-function" class="internal xref">The mDNS Registrar function</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.2">
+                <p id="section-toc.1-1.2.2.2.1"><a href="#section-2.2" class="auto internal xref">2.2</a>.  <a href="#name-the-advertising-proxy-funct" class="internal xref">The Advertising Proxy function</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.3">
+                <p id="section-toc.1-1.2.2.3.1"><a href="#section-2.3" class="auto internal xref">2.3</a>.  <a href="#name-the-srp-registrar-function" class="internal xref">The SRP Registrar function</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.4">
+                <p id="section-toc.1-1.2.2.4.1"><a href="#section-2.4" class="auto internal xref">2.4</a>.  <a href="#name-the-dns-authoritative-serve" class="internal xref">The DNS Authoritative Server function</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.4.2.1">
+                    <p id="section-toc.1-1.2.2.4.2.1.1"><a href="#section-2.4.1" class="auto internal xref">2.4.1</a>.  <a href="#name-discovery-proxy" class="internal xref">Discovery Proxy</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.4.2.2">
+                    <p id="section-toc.1-1.2.2.4.2.2.1"><a href="#section-2.4.2" class="auto internal xref">2.4.2</a>.  <a href="#name-full-service-resolver" class="internal xref">Full Service Resolver</a></p>
+</li>
+                </ul>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.5">
+                <p id="section-toc.1-1.2.2.5.1"><a href="#section-2.5" class="auto internal xref">2.5</a>.  <a href="#name-operation" class="internal xref">Operation</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.5.2.1">
+                    <p id="section-toc.1-1.2.2.5.2.1.1"><a href="#section-2.5.1" class="auto internal xref">2.5.1</a>.  <a href="#name-late-conflicts" class="internal xref">Late Conflicts</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.5.2.2">
+                    <p id="section-toc.1-1.2.2.5.2.2.1"><a href="#section-2.5.2" class="auto internal xref">2.5.2</a>.  <a href="#name-no-text-encoding-translatio" class="internal xref">No Text-Encoding Translation</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.5.2.3">
+                    <p id="section-toc.1-1.2.2.5.2.3.1"><a href="#section-2.5.3" class="auto internal xref">2.5.3</a>.  <a href="#name-no-support-for-reconfirm" class="internal xref">No Support for Reconfirm</a></p>
+</li>
+                </ul>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
+            <p id="section-toc.1-1.3.1"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-references" class="internal xref">References</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.1">
+                <p id="section-toc.1-1.5.2.1.1"><a href="#section-5.1" class="auto internal xref">5.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.2">
+                <p id="section-toc.1-1.5.2.2.1"><a href="#section-5.2" class="auto internal xref">5.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
+            <p id="section-toc.1-1.6.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-authors-addresses" class="internal xref">Authors' Addresses</a></p>
+</li>
+        </ul>
+</nav>
+</section>
+</div>
+<section id="section-1">
+      <h2 id="name-introduction">
+<a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
+      </h2>
+<p id="section-1-1">
+ DNS-Based Service Discovery
+ <span>[<a href="#RFC6763" class="cite xref">RFC6763</a>]</span>
+        <span>[<a href="#I-D.cheshire-dnssd-roadmap" class="cite xref">ROADMAP</a>]</span>
+ was designed to facilitate Zero Configuration IP Networking
+ <span>[<a href="#RFC6760" class="cite xref">RFC6760</a>]</span>
+        <span>[<a href="#ZC" class="cite xref">ZC</a>]</span>.<br>
+
+ When used with Multicast DNS
+ <span>[<a href="#RFC6762" class="cite xref">RFC6762</a>]</span>
+ with ".local" domain names
+ <span>[<a href="#RFC6761" class="cite xref">RFC6761</a>]</span>
+ this works well on a single link (a single broadcast domain).<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2">However, in some applications, multicast may be a poor choice for advertising. Most
+      obviously, multicast DNS is constrained to a single network link, and for example in the
+      case of stub networks <span>[<a href="#I-D.lemon-stub-networks" class="cite xref">STUBNET</a>]</span>, service discovery
+      for devices on the stub network necessarily requires some kind of proxy.<a href="#section-1-2" class="pilcrow">¶</a></p>
+<p id="section-1-3">Also, even in single-link use cases, multicast isn't always the best choice. On some
+      network media, multicast is inefficient and/or unreliable. Also, mDNS-based DNSSD requires
+      that each host providing services receive and process all service discovery requests even
+      for services they don't offer. For power-constrained hosts, keeping a radio listening all
+      the time is prohibitively expensive.<a href="#section-1-3" class="pilcrow">¶</a></p>
+<p id="section-1-4">Ideally, in situations where multicast DNS is not the right choice, an obvious
+      alternative is to use regular unicast DNS <span>[<a href="#RFC1035" class="cite xref">RFC1035</a>]</span>. Unfortunately, this
+      isn't always possible: the DNS protocol relies on a delegation hierarchy, and on
+      per-network DNS resolvers.<a href="#section-1-4" class="pilcrow">¶</a></p>
+<p id="section-1-5"> The operational model for such servers is that any particular network infrastructure
+      provides a DNS resolver, and all DNS queries go to that resolver. So using unicast DNS for
+      discovery of services through a stub network proxy, for example, would require that the
+      stub network proxy be able to somehow register with the infrastructure DNS service. This
+      isn't usually possible.<a href="#section-1-5" class="pilcrow">¶</a></p>
+<p id="section-1-6">This document describes a new type of proxy, an Advertising Proxy, which can be used to
+      address some of these issues.  An Advertising Proxy advertises the contents of some DNS
+      zone (or zones) <span>[<a href="#RFC1034" class="cite xref">RFC1034</a>]</span> to one or more network links using multicast
+      DNS. This allows the DNS protocol, for example using the Service Registration Protocol
+      registrar function <span>[<a href="#I-D.ietf-dnssd-srp" class="cite xref">SRP</a>]</span>, to be used by servers to
+      advertise their services, while using the permissionless model of multicast DNS to make those
+      services discoverable to devices on links supported by the Advertising Proxy.<a href="#section-1-6" class="pilcrow">¶</a></p>
+<p id="section-1-7">In its simplest realization, an advertising proxy monitors the contents of a DNS
+      zone. When a new DNS resource record is added to the zone, the advertising proxy rewrites
+      that record, replacing the domain name of the zone with ".local," and advertises the
+      result using mDNS on one or more network links.<a href="#section-1-7" class="pilcrow">¶</a></p>
+<p id="section-1-8">However, more commonly, the advertising proxy function is combined with an SRP
+      registrar. In this case, the SRP registrar and the advertising proxy service cooperate to
+      minimize name collisions. Such a service may or may not actually respond to DNS
+      queries.<a href="#section-1-8" class="pilcrow">¶</a></p>
+<p id="section-1-9">When an Advertising Proxy is implemented as part of an SRP registrar (a DNS
+      authoritative server that implements Service Registration Protocol), an SRP requestor can
+      send registration requests for any valid DNS records to the SRP registrar.  In practice,
+      the most common use is to register the PTR, SRV and TXT records that describe a DNS-SD
+      service <span>[<a href="#RFC6763" class="cite xref">RFC6763</a>]</span>, and the A and AAAA records that give the IPv4 and/or
+      IPv6 addresses of the host on which that service can be reached.<a href="#section-1-9" class="pilcrow">¶</a></p>
+<p id="section-1-10">Although, as we've said, an Advertising Proxy can monitor a DNS zone and advertise its
+      contents, this is not a compelling use case. The reason for this is that we can assume
+      that all DNSSD implementations will discover and use infrastructure provided service
+      discovery using the DNS protocol if it is available. We do not need to support a use case
+      where a consumer of DNSSD only implements multicast DNS.<a href="#section-1-10" class="pilcrow">¶</a></p>
+<p id="section-1-11">An authoritative DNS zone that is not managed as part of the Advertising Proxy really
+      can only exist as an infrastructure service. If it exists as an infrastructure service,
+      the right way to make it available is to make it discoverable using the mechanisms
+      described in <span><a href="https://rfc-editor.org/rfc/rfc6763#section-11" class="relref">Section 11</a> of [<a href="#RFC6763" class="cite xref">RFC6763</a>]</span>. Since no use case
+      exists for this model of Advertising Proxy, we do not attempt to specify how such an
+      Advertising Proxy could be made to work.<a href="#section-1-11" class="pilcrow">¶</a></p>
+<p id="section-1-12">Similarly, an Advertising Proxy that, as part of its functioning, answers unicast DNS
+      queries, would ideally be included in the DNS service provided by the infrastructure, and
+      in this case the Advertising Proxy function would not be necessary. However, because in
+      this case the Advertising Proxy functionality is superfluous, discussion of this topic is
+      out of scope for this document.<a href="#section-1-12" class="pilcrow">¶</a></p>
+<p id="section-1-13">Therefore, this document limits itself to describing how to implement an Advertising
+      Proxy that manages service registrations using the Service Registration Protocol. We do
+      talk about how the Service Registration Protocol database should be advertised, but not
+      how it can be integrated into an existing DNS infrastructure.<a href="#section-1-13" class="pilcrow">¶</a></p>
+<section id="section-1.1">
+        <h3 id="name-conventions-and-terminology">
+<a href="#section-1.1" class="section-number selfRef">1.1. </a><a href="#name-conventions-and-terminology" class="section-name selfRef">Conventions and Terminology Used in This Document</a>
+        </h3>
+<p id="section-1.1-1">
+          The key words "<span class="bcp14">MUST</span>", "<span class="bcp14">MUST NOT</span>",
+          "<span class="bcp14">REQUIRED</span>", "<span class="bcp14">SHALL</span>", "<span class="bcp14">SHALL NOT</span>", "<span class="bcp14">SHOULD</span>", "<span class="bcp14">SHOULD NOT</span>",
+          "<span class="bcp14">RECOMMENDED</span>", "<span class="bcp14">NOT RECOMMENDED</span>",
+          "<span class="bcp14">MAY</span>", and "<span class="bcp14">OPTIONAL</span>" in this document are
+          to be interpreted as
+          described in BCP 14 <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</span> <span>[<a href="#RFC8174" class="cite xref">RFC8174</a>]</span>
+          when, and only when, they appear in all capitals, as shown here.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
+</section>
+</section>
+<section id="section-2">
+      <h2 id="name-advertising-proxy">
+<a href="#section-2" class="section-number selfRef">2. </a><a href="#name-advertising-proxy" class="section-name selfRef">Advertising Proxy</a>
+      </h2>
+<p id="section-2-1">An Advertising Proxy advertises the contents of one or more DNS zones that are
+      maintained using the Service Registration Protocol. Such a service consists of three
+      parts, four of which are required, one of which is optional. These are:<a href="#section-2-1" class="pilcrow">¶</a></p>
+<ul class="compact">
+<li class="compact" id="section-2-2.1">
+   The mDNS Registrar function<a href="#section-2-2.1" class="pilcrow">¶</a>
+</li>
+        <li class="compact" id="section-2-2.2">
+   The Advertising Proxy function<a href="#section-2-2.2" class="pilcrow">¶</a>
+</li>
+        <li class="compact" id="section-2-2.3">
+          <p id="section-2-2.3.1">The SRP registrar function, which includes:<a href="#section-2-2.3.1" class="pilcrow">¶</a></p>
+<ul class="compact">
+<li class="compact" id="section-2-2.3.2.1">The SRP protocol implementation<a href="#section-2-2.3.2.1" class="pilcrow">¶</a>
+</li>
+            <li class="compact" id="section-2-2.3.2.2">The zone database that is updated using the SRP protocol<a href="#section-2-2.3.2.2" class="pilcrow">¶</a>
+</li>
+          </ul>
+</li>
+        <li class="compact" id="section-2-2.4">
+          <p id="section-2-2.4.1">The DNS authoritative server function, which may include any or all of:<a href="#section-2-2.4.1" class="pilcrow">¶</a></p>
+<ul class="compact">
+<li class="compact" id="section-2-2.4.2.1">Authoritative DNS service for all zones managed by SRP<a href="#section-2-2.4.2.1" class="pilcrow">¶</a>
+</li>
+            <li class="compact" id="section-2-2.4.2.2">Discovery Proxy service for all links managed by the Advertising Proxy<a href="#section-2-2.4.2.2" class="pilcrow">¶</a>
+</li>
+            <li class="compact" id="section-2-2.4.2.3">Full-service DNS resolver or DNS Proxy<a href="#section-2-2.4.2.3" class="pilcrow">¶</a>
+</li>
+          </ul>
+</li>
+      </ul>
+<p id="section-2-3">These functions are somewhat interdependent, so while we will discuss each separately,
+      there is no way to completely separate them. After discussing each function, we will
+      describe the operation of the system as a whole.<a href="#section-2-3" class="pilcrow">¶</a></p>
+<section id="section-2.1">
+        <h3 id="name-the-mdns-registrar-function">
+<a href="#section-2.1" class="section-number selfRef">2.1. </a><a href="#name-the-mdns-registrar-function" class="section-name selfRef">The mDNS Registrar function</a>
+        </h3>
+<p id="section-2.1-1">The mDNS registrar function is an mDNS responder, as described in <span>[<a href="#RFC6762" class="cite xref">RFC6762</a>]</span>.  We use the term "mDNS registrar" rather than simply "mDNS
+ responder" to emphasize the specific function of advertising mDNS records, as opposed to
+ browsing or resolving services.<a href="#section-2.1-1" class="pilcrow">¶</a></p>
+<p id="section-2.1-2">If Discovery Proxy authoritative resolution service is being offered by the Advertising Proxy,
+ the mDNS registrar MUST support querying for services and records on the link that are not
+ advertised by the Advertising Proxy.<a href="#section-2.1-2" class="pilcrow">¶</a></p>
+<p id="section-2.1-3">The mDNS Registrar MUST implement the Time Since Received <span>[<a href="#I-D.tllq-tsr" class="cite xref">TSR</a>]</span> record.
+ This makes it possible to set up redundant Advertising Proxies that use SRP replication
+ <span>[<a href="#I-D.lemon-srp-replication" class="cite xref">REPLICATION</a>]</span> to maintain a common set of SRP zones and advertise
+ them without SRP Updates creating conflicts. Such conflicts can occur when, for example, the IP
+ address of a host changes and it sends an SRP update. The new IP address conflicts with the old
+ address, which is being advertised. Without TSR, the old address will win the conflict, resulting
+ in stale data being advertised. With TSR, the newer data supersedes the old data.<a href="#section-2.1-3" class="pilcrow">¶</a></p>
+</section>
+<section id="section-2.2">
+        <h3 id="name-the-advertising-proxy-funct">
+<a href="#section-2.2" class="section-number selfRef">2.2. </a><a href="#name-the-advertising-proxy-funct" class="section-name selfRef">The Advertising Proxy function</a>
+        </h3>
+<p id="section-2.2-1">The Advertising Proxy function mediates between an mDNS registrar and the SRP zone
+ database. Whenever a record is tentatively added to the SRP zone database, the
+ Advertising Proxy registers it with the mDNS registrar. If this registration succeeds,
+ the registration is finalized; otherwise it is rejected. The usual reason for rejection
+ would be that the name is already taken. When records expire in the SRP zone database,
+ the Advertising Proxy function removes those records from its mDNS advertisement.<a href="#section-2.2-1" class="pilcrow">¶</a></p>
+<p id="section-2.2-2">Each SRP Update includes a KEY record that is applicable to every name claimed in the
+ Update. SRP Update also includes an EDNS0 Update Lease option which may include a
+ KEY-LEASE value that's longer than the LEASE value. In this case, the Advertising Proxy
+ SHOULD advertise the KEY record for the duration of the KEY-LEASE, even if the other
+ records are removed when the LEASE value has expired. The Advertising Proxy MAY
+ advertise the KEY record even if the LEASE and KEY-LEASE values are the same, or the
+ KEY-LEASE valid isn't specified.<a href="#section-2.2-2" class="pilcrow">¶</a></p>
+<p id="section-2.2-3">Records advertised by the Advertising Proxy all appear in the .local
+ domain. Consequently, these records MUST be rewritten in somewhat the opposite of
+ the way a Discovery Proxy <span><a href="https://rfc-editor.org/rfc/rfc8766#section-5.5" class="relref">Section 5.5</a> of [<a href="#RFC8766" class="cite xref">RFC8766</a>]</span>
+ rewrites them.<a href="#section-2.2-3" class="pilcrow">¶</a></p>
+<p id="section-2.2-4">Each zone managed by the SRP registrar function must have a name. In some cases, SRP
+ requestor will discover the name using the Domain Enumeration process described in <span><a href="https://rfc-editor.org/rfc/rfc6763#section-11" class="relref">Section 11</a> of [<a href="#RFC6763" class="cite xref">RFC6763</a>]</span>. However in most cases, since
+ advertising proxies aren't integrated into infrastructures, the registration domain used
+ by the SRP requestor will be the 'default.service.arpa.' domain. The SRP registrar may
+ rewrite incoming registrations into a different zone, or retain the
+ 'default.service.arpa.' zone name.<a href="#section-2.2-4" class="pilcrow">¶</a></p>
+<p id="section-2.2-5">In either case, before advertising a tentative record, the Advertising Proxy function
+ first rewrites the record. First, the owner name is transformed by replacing the zone
+ name with '.local'. Secondly, for any RR that contains a domain name, that domain is
+ transformed in the same way.<a href="#section-2.2-5" class="pilcrow">¶</a></p>
+<p id="section-2.2-6">In some cases, the SRP requestor may register one or more address records for
+ addresses that aren't valid or reachable on some link on which the advertising proxy
+ could advertise them. The Advertising Proxy function MAY filter out such records
+ entirely, or MAY explicitly advertise such records only on the link(s) on which they are
+ reachable. This is optional because it requires the Advertising Proxy function to have
+ enough information to make such a determination, which may not always be the case.<a href="#section-2.2-6" class="pilcrow">¶</a></p>
+<p id="section-2.2-7">Where such determinations are possible, the advertising proxy SHOULD NOT advertise an
+ IPv4 or IPv6 link-local address, or any other media-specific link-scoped address, on any
+ link other than the link on which the SRP registration was received.<a href="#section-2.2-7" class="pilcrow">¶</a></p>
+</section>
+<section id="section-2.3">
+        <h3 id="name-the-srp-registrar-function">
+<a href="#section-2.3" class="section-number selfRef">2.3. </a><a href="#name-the-srp-registrar-function" class="section-name selfRef">The SRP Registrar function</a>
+        </h3>
+<p id="section-2.3-1">The SRP registrar function comprises two components: the SRP protocol and the zone
+ database (or databases). The details of the SRP protocol are described in
+ <span>[<a href="#I-D.ietf-dnssd-srp" class="cite xref">SRP</a>]</span>.<a href="#section-2.3-1" class="pilcrow">¶</a></p>
+<p id="section-2.3-2">In the context of an Advertising Proxy, the SRP protocol will be updating one or more
+ DNS zones. It's possible, for example, for an SRP registrar to provide SRP service on
+ more than one link, and for each link to be treated as a separate DNS zone. SRP
+ requestors may not know what zone they are updating: they may be using
+ 'default.service.arpa' as a placeholder rather than discovering the name of the zone to
+ update. In this case, updates for 'default.service.arpa' will be rewritten into the name
+ of the zone specific to a particular link. Note that this separation is not required,
+ but is possible and may be desirable.<a href="#section-2.3-2" class="pilcrow">¶</a></p>
+<p id="section-2.3-3">In an Advertising Proxy, when an SRP update is received, it is first validated
+ according to the SRP specification. It is then checked for uniqueness in the context of
+ SRP, using the SRP first-come, first-served mechanism. Unlike a DNS-only SRP registrar,
+ an Advertising Proxy registrar must complete two additional uniqueness checks for any
+ name being registered.<a href="#section-2.3-3" class="pilcrow">¶</a></p>
+<p id="section-2.3-4">First, the name must be unique across all DNS zones that are being advertised
+ together on the same link by the Advertising Proxy. That is, if the zone being updated
+ is advertised on any link, then the name being registered must be unique in every zone
+ that is being advertised on that link. If the zone is being advertised on multiple
+ links, then for each link, the name must be unique across all the zones advertised on
+ that link.<a href="#section-2.3-4" class="pilcrow">¶</a></p>
+<p id="section-2.3-5">Secondly, the name must not already be being advertised via mDNS. This is easy to
+ check: the Advertising Proxy tentatively advertises the name on all links that the
+ corresponding zone is being advertised on. If every tentative advertisement succeeds
+ without detecting a conflict, then the advertisement has been successful. At this point
+ the SRP registrar can confirm with the requestor that its registration has succeeded.<a href="#section-2.3-5" class="pilcrow">¶</a></p>
+<p id="section-2.3-6">If, on the other hand, a conflict is detected in any part of this process, then the
+ SRP registrar informs the requestor that the name is already taken, by returning the
+ YXDOMAIN response code.<a href="#section-2.3-6" class="pilcrow">¶</a></p>
+</section>
+<section id="section-2.4">
+        <h3 id="name-the-dns-authoritative-serve">
+<a href="#section-2.4" class="section-number selfRef">2.4. </a><a href="#name-the-dns-authoritative-serve" class="section-name selfRef">The DNS Authoritative Server function</a>
+        </h3>
+<p id="section-2.4-1">An Advertising Proxy SHOULD answer DNS queries for the zones it manages. This is not
+ required because in some cases it may not be possible. The zones it manages may not have
+ names in the DNS hierarchy, for example, so even if they have locally-assigned names,
+ answering authoritatively for these names may be problematic.<a href="#section-2.4-1" class="pilcrow">¶</a></p>
+<p id="section-2.4-2">The primary purpose of the Advertising Proxy is to support DNS Service Discovery.  In
+ some use cases where Advertising Proxy is desirable, the mDNS function can only work on
+ some links, while unicast DNS is the only option on others. This is the case, for example,
+ for an Advertising Proxy operating on a stub network router.<a href="#section-2.4-2" class="pilcrow">¶</a></p>
+<p id="section-2.4-3">In such a situation, devices on the infrastructure link will do service discovery
+ using mDNS. However, devices on the stub network link may not be able to use mDNS, or it
+ may be preferable that they do not.  In this case, the Advertising Proxy will need to be
+ able to provide the same information that is provided on the infrastructure link through
+ a DNS resolver, using the DNS protocol, or, ideally, DNS Push <span>[<a href="#RFC8765" class="cite xref">RFC8765</a>]</span>.<a href="#section-2.4-3" class="pilcrow">¶</a></p>
+<p id="section-2.4-4">Any Advertising Proxy implementing this functionality MAY use the
+ 'default.service.arpa.' zone as a catch-all zone. A query to the 'default.service.arpa.'
+ zone SHOULD return the same set of answers that would be returned by an mDNS query to
+ the .local zone on a link served by the Advertising Proxy's mDNS registrar.<a href="#section-2.4-4" class="pilcrow">¶</a></p>
+<p id="section-2.4-5">When using the 'default.service.arpa.' zone for queries, all responses that reference
+ link-specific domains MUST be rewritten to use 'default.service.arpa.' domain
+ instead. This includes domain names in the resource record data. Because the Advertising
+ Proxy is required to enforce name uniqueness across all the zones it manages, this
+ should not result in any conflicts.<a href="#section-2.4-5" class="pilcrow">¶</a></p>
+<section id="section-2.4.1">
+          <h4 id="name-discovery-proxy">
+<a href="#section-2.4.1" class="section-number selfRef">2.4.1. </a><a href="#name-discovery-proxy" class="section-name selfRef">Discovery Proxy</a>
+          </h4>
+<p id="section-2.4.1-1">In order to fully support the ability to query the Advertising Proxy either with
+   mDNS or DNS, it is necessary to provide a Discovery Proxy <span>[<a href="#RFC8766" class="cite xref">RFC8766</a>]</span>.
+   The Discovery Proxy provides answers for link-specific domains that represent each
+   of the links supported by the Advertising Proxy. These responses are combined with
+   responses from zones managed by SRP to produce a complete set of answers to any
+   query received by the Advertising Proxy over DNS or DNS Push.<a href="#section-2.4.1-1" class="pilcrow">¶</a></p>
+</section>
+<section id="section-2.4.2">
+          <h4 id="name-full-service-resolver">
+<a href="#section-2.4.2" class="section-number selfRef">2.4.2. </a><a href="#name-full-service-resolver" class="section-name selfRef">Full Service Resolver</a>
+          </h4>
+<p id="section-2.4.2-1">In the case of a stub network, the Advertising Proxy may appear to devices on the
+   stub network as an infrastructure service. This would mean that the DNS Listener on
+   port 53 (TCP and UDP) and port 853 (TLS) could be expected to receive queries for
+   arbitrary domain names, not just domain names for which the Advertising Proxy is
+   authoritative.<a href="#section-2.4.2-1" class="pilcrow">¶</a></p>
+<p id="section-2.4.2-2">Resolution of such names may not be required for devices on the stub network. For
+   instance, if the stub network has only locally-provided IPv6 service using a ULA,
+   devices on the stub network will not be able to contact arbitrary devices on the
+   Internet anyway.<a href="#section-2.4.2-2" class="pilcrow">¶</a></p>
+<p id="section-2.4.2-3">However, in cases where support for connecting to hosts outside of the scope of the
+   Advertising Proxy is needed, the Advertising Proxy will have to provide a full service
+   resolver (or a DNS Proxy <span>[<a href="#RFC5625" class="cite xref">RFC5625</a>]</span>) in addition to its DNS
+   authoritative service and Discovery Proxy service. The details of how this is
+   configured are likely to be implementation-specific, and therefore outside the scope
+   of this document.<a href="#section-2.4.2-3" class="pilcrow">¶</a></p>
+</section>
+</section>
+<section id="section-2.5">
+        <h3 id="name-operation">
+<a href="#section-2.5" class="section-number selfRef">2.5. </a><a href="#name-operation" class="section-name selfRef">Operation</a>
+        </h3>
+<section id="section-2.5.1">
+          <h4 id="name-late-conflicts">
+<a href="#section-2.5.1" class="section-number selfRef">2.5.1. </a><a href="#name-late-conflicts" class="section-name selfRef">Late Conflicts</a>
+          </h4>
+<p id="section-2.5.1-1">It is possible for two mDNS responders to advertise conflicting records on the same
+   name, but, as a consequence of a network partition or multicast packet loss, for
+   neither server to immediately detect a conflict. When this happens, then at some later
+   time one or the other mDNS responder will notice the conflict, and begin the conflict
+   resolution process. The outcome of this process may be that the record advertised by
+   the Advertising Proxy loses. In this case, the Advertising Proxy MUST stop advertising
+   this record and remove it from its database. There is no way to notify the client when
+   this happens, but when the client tries to renew its registration, the conflict can be
+   reported.<a href="#section-2.5.1-1" class="pilcrow">¶</a></p>
+</section>
+<section id="section-2.5.2">
+          <h4 id="name-no-text-encoding-translatio">
+<a href="#section-2.5.2" class="section-number selfRef">2.5.2. </a><a href="#name-no-text-encoding-translatio" class="section-name selfRef">No Text-Encoding Translation</a>
+          </h4>
+<p id="section-2.5.2-1">
+            As with a Discovery Proxy
+            <span>[<a href="#RFC8766" class="cite xref">RFC8766</a>]</span>,
+            an Advertising Proxy does no translation between
+            text encodings
+            <span>[<a href="#RFC6055" class="cite xref">RFC6055</a>]</span>.
+            Specifically, an Advertising Proxy does no
+            translation between Punycode encoding
+            <span>[<a href="#RFC3492" class="cite xref">RFC3492</a>]</span>
+            and UTF-8 encoding
+            <span>[<a href="#RFC3629" class="cite xref">RFC3629</a>]</span>,
+            either in the owner name of DNS records or
+            anywhere in the RDATA of DNS records
+            (such as the RDATA of PTR records, SRV records, NS
+            records, or other record types like TXT, where it is
+            ambiguous whether the RDATA may contain DNS names).
+            All bytes are treated as-is with no attempt at
+            text-encoding translation.
+            A server implementing DNS-based Service Discovery
+            <span>[<a href="#RFC6763" class="cite xref">RFC6763</a>]</span>
+            will use UTF-8 encoding for its unicast DNS-based
+            record registrations, which the Advertising Proxy
+            passes through without any text-encoding
+            translation to the Multicast DNS subsystem.
+            Queries from peers on the configured multicast-capable
+            interface are answered directly from the advertised data
+            without any text-encoding translation.<a href="#section-2.5.2-1" class="pilcrow">¶</a></p>
+</section>
+<section id="section-2.5.3">
+          <h4 id="name-no-support-for-reconfirm">
+<a href="#section-2.5.3" class="section-number selfRef">2.5.3. </a><a href="#name-no-support-for-reconfirm" class="section-name selfRef">No Support for Reconfirm</a>
+          </h4>
+<p id="section-2.5.3-1">
+            For network efficiency,
+            Multicast DNS
+            <span>[<a href="#RFC6762" class="cite xref">RFC6762</a>]</span>
+            uses fairly long record lifetimes
+            (typically 75 minutes).
+            When a client is unable to reach
+            a service that it discovered,
+            Multicast DNS provides a "reconfirm"
+            mechanism that enables the client
+            to signal to the Multicast DNS subsystem
+            that its cached data may be suspect,
+            which causes the Multicast DNS subsystem
+            to reissue queries, and remove the stale
+            records if the queries are not answered.<a href="#section-2.5.3-1" class="pilcrow">¶</a></p>
+<p id="section-2.5.3-2">
+            Similarly, when using unicast service discovery
+            with a Discovery Proxy <span>[<a href="#RFC8766" class="cite xref">RFC8766</a>]</span>,
+            the DNS Push Notifications <span>[<a href="#RFC8765" class="cite xref">RFC8765</a>]</span> protocol
+            provides the RECONFIRM mechanism to signal that
+            the Discovery Proxy should perform a local
+            Multicast DNS reconfirm operation to
+            re-verify the validity of the records.<a href="#section-2.5.3-2" class="pilcrow">¶</a></p>
+<p id="section-2.5.3-3">
+            When an Advertising Proxy is used,
+            to support legacy clients that only implement Multicast DNS,
+            reconfirm operations have no effect.
+
+            If a device uses unicast Service Registration Protocol
+            <span>[<a href="#I-D.ietf-dnssd-srp" class="cite xref">SRP</a>]</span>
+            to register its services
+            with a service registry with Advertising Proxy capability,
+            and the device then gets disconnected from the network,
+            the Advertising Proxy will continue to advertise
+            those records until the registrations expire.
+
+            If a client discovers the service instance using
+            Multicast DNS and is unable to reach it,
+            and uses a Multicast DNS reconfirm operation to re-verify
+            the validity of the records, then
+            the Advertising Proxy will continue
+            to answer on behalf of the departed device
+            until the record registrations expire.
+
+            The Advertising Proxy has no reliable way
+            to determine whether the additional Multicast DNS
+            queries are due to a reconfirm operation,
+            or due to other routine causes,
+            like a client being rebooted,
+            or disconnecting and then reconnecting to the network.
+
+            The service registry has no reliable automatic way
+            to determine whether a device that
+            registered records has failed or disconnected from the network.
+            Particularly with sleepy battery powered devices,
+            the service registry does not know what active duty cycle
+            any given service is expected to provide.<a href="#section-2.5.3-3" class="pilcrow">¶</a></p>
+<p id="section-2.5.3-4">
+            Consequently, reconfirm operations are not supported
+            with an Advertising Proxy using multicast DNS.
+            In cases where use of the reconfirm mechanism
+            is important, clients should be upgraded to use the unicast
+            DNS Push Notifications <span>[<a href="#RFC8765" class="cite xref">RFC8765</a>]</span> protocol's
+            RECONFIRM message.
+            This RECONFIRM message provides an unambiguous signal
+            to the service registry that it may be retaining stale records.
+            (A future update to the Service Registration Protocol document
+            <span>[<a href="#I-D.ietf-dnssd-srp" class="cite xref">SRP</a>]</span>
+            will consider ways that this unambiguous signal
+            can be used to trigger expedited removal of stale data.)<a href="#section-2.5.3-4" class="pilcrow">¶</a></p>
+</section>
+</section>
+</section>
+<section id="section-3">
+      <h2 id="name-security-considerations">
+<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+      </h2>
+<p id="section-3-1">An Advertising Proxy may made data visible
+      to eavesdroppers on the configured multicast-capable link(s).<a href="#section-3-1" class="pilcrow">¶</a></p>
+</section>
+<section id="section-4">
+      <h2 id="name-iana-considerations">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
+      </h2>
+<p id="section-4-1">This document has no IANA actions.<a href="#section-4-1" class="pilcrow">¶</a></p>
+</section>
+<section id="section-5">
+      <h2 id="name-references">
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-references" class="section-name selfRef">References</a>
+      </h2>
+<section id="section-5.1">
+        <h3 id="name-normative-references">
+<a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+        </h3>
+<dl class="references">
+<dt id="RFC1034">[RFC1034]</dt>
+        <dd>
+<span class="refAuthor">Mockapetris, P.</span>, <span class="refTitle">"Domain names - concepts and facilities"</span>, <span class="seriesInfo">STD 13</span>, <span class="seriesInfo">RFC 1034</span>, <span class="seriesInfo">DOI 10.17487/RFC1034</span>, <time datetime="1987-11" class="refDate">November 1987</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc1034">https://www.rfc-editor.org/info/rfc1034</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC1035">[RFC1035]</dt>
+        <dd>
+<span class="refAuthor">Mockapetris, P.</span>, <span class="refTitle">"Domain names - implementation and specification"</span>, <span class="seriesInfo">STD 13</span>, <span class="seriesInfo">RFC 1035</span>, <span class="seriesInfo">DOI 10.17487/RFC1035</span>, <time datetime="1987-11" class="refDate">November 1987</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc1035">https://www.rfc-editor.org/info/rfc1035</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC2119">[RFC2119]</dt>
+        <dd>
+<span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03" class="refDate">March 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc2119">https://www.rfc-editor.org/info/rfc2119</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC6760">[RFC6760]</dt>
+        <dd>
+<span class="refAuthor">Cheshire, S.</span> and <span class="refAuthor">M. Krochmal</span>, <span class="refTitle">"Requirements for a Protocol to Replace the AppleTalk Name Binding Protocol (NBP)"</span>, <span class="seriesInfo">RFC 6760</span>, <span class="seriesInfo">DOI 10.17487/RFC6760</span>, <time datetime="2013-02" class="refDate">February 2013</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc6760">https://www.rfc-editor.org/info/rfc6760</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC6761">[RFC6761]</dt>
+        <dd>
+<span class="refAuthor">Cheshire, S.</span> and <span class="refAuthor">M. Krochmal</span>, <span class="refTitle">"Special-Use Domain Names"</span>, <span class="seriesInfo">RFC 6761</span>, <span class="seriesInfo">DOI 10.17487/RFC6761</span>, <time datetime="2013-02" class="refDate">February 2013</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc6761">https://www.rfc-editor.org/info/rfc6761</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC6762">[RFC6762]</dt>
+        <dd>
+<span class="refAuthor">Cheshire, S.</span> and <span class="refAuthor">M. Krochmal</span>, <span class="refTitle">"Multicast DNS"</span>, <span class="seriesInfo">RFC 6762</span>, <span class="seriesInfo">DOI 10.17487/RFC6762</span>, <time datetime="2013-02" class="refDate">February 2013</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc6762">https://www.rfc-editor.org/info/rfc6762</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC6763">[RFC6763]</dt>
+        <dd>
+<span class="refAuthor">Cheshire, S.</span> and <span class="refAuthor">M. Krochmal</span>, <span class="refTitle">"DNS-Based Service Discovery"</span>, <span class="seriesInfo">RFC 6763</span>, <span class="seriesInfo">DOI 10.17487/RFC6763</span>, <time datetime="2013-02" class="refDate">February 2013</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc6763">https://www.rfc-editor.org/info/rfc6763</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8174">[RFC8174]</dt>
+        <dd>
+<span class="refAuthor">Leiba, B.</span>, <span class="refTitle">"Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 8174</span>, <span class="seriesInfo">DOI 10.17487/RFC8174</span>, <time datetime="2017-05" class="refDate">May 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc8174">https://www.rfc-editor.org/info/rfc8174</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8765">[RFC8765]</dt>
+        <dd>
+<span class="refAuthor">Pusateri, T.</span> and <span class="refAuthor">S. Cheshire</span>, <span class="refTitle">"DNS Push Notifications"</span>, <span class="seriesInfo">RFC 8765</span>, <span class="seriesInfo">DOI 10.17487/RFC8765</span>, <time datetime="2020-06" class="refDate">June 2020</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc8765">https://www.rfc-editor.org/info/rfc8765</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="I-D.ietf-dnssd-srp">[SRP]</dt>
+        <dd>
+<span class="refAuthor">Lemon, T.</span> and <span class="refAuthor">S. Cheshire</span>, <span class="refTitle">"Service Registration Protocol for DNS-Based Service Discovery"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-dnssd-srp-19</span>, <time datetime="2023-03-26" class="refDate">26 March 2023</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-dnssd-srp-19">https://datatracker.ietf.org/doc/html/draft-ietf-dnssd-srp-19</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="I-D.tllq-tsr">[TSR]</dt>
+      <dd>
+<span class="refAuthor">Lemon, T.</span> and <span class="refAuthor">L. Qin</span>, <span class="refTitle">"Multicast DNS conflict resolution using the Time Since Received (TSR) RR"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-tllq-tsr-03</span>, <time datetime="2023-03-13" class="refDate">13 March 2023</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-tllq-tsr-03">https://datatracker.ietf.org/doc/html/draft-tllq-tsr-03</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+<section id="section-5.2">
+        <h3 id="name-informative-references">
+<a href="#section-5.2" class="section-number selfRef">5.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+        </h3>
+<dl class="references">
+<dt id="RFC3492">[RFC3492]</dt>
+        <dd>
+<span class="refAuthor">Costello, A.</span>, <span class="refTitle">"Punycode: A Bootstring encoding of Unicode for Internationalized Domain Names in Applications (IDNA)"</span>, <span class="seriesInfo">RFC 3492</span>, <span class="seriesInfo">DOI 10.17487/RFC3492</span>, <time datetime="2003-03" class="refDate">March 2003</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc3492">https://www.rfc-editor.org/info/rfc3492</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC3629">[RFC3629]</dt>
+        <dd>
+<span class="refAuthor">Yergeau, F.</span>, <span class="refTitle">"UTF-8, a transformation format of ISO 10646"</span>, <span class="seriesInfo">STD 63</span>, <span class="seriesInfo">RFC 3629</span>, <span class="seriesInfo">DOI 10.17487/RFC3629</span>, <time datetime="2003-11" class="refDate">November 2003</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc3629">https://www.rfc-editor.org/info/rfc3629</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC5625">[RFC5625]</dt>
+        <dd>
+<span class="refAuthor">Bellis, R.</span>, <span class="refTitle">"DNS Proxy Implementation Guidelines"</span>, <span class="seriesInfo">BCP 152</span>, <span class="seriesInfo">RFC 5625</span>, <span class="seriesInfo">DOI 10.17487/RFC5625</span>, <time datetime="2009-08" class="refDate">August 2009</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc5625">https://www.rfc-editor.org/info/rfc5625</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC6055">[RFC6055]</dt>
+        <dd>
+<span class="refAuthor">Thaler, D.</span>, <span class="refAuthor">Klensin, J.</span>, and <span class="refAuthor">S. Cheshire</span>, <span class="refTitle">"IAB Thoughts on Encodings for Internationalized Domain Names"</span>, <span class="seriesInfo">RFC 6055</span>, <span class="seriesInfo">DOI 10.17487/RFC6055</span>, <time datetime="2011-02" class="refDate">February 2011</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc6055">https://www.rfc-editor.org/info/rfc6055</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC7558">[RFC7558]</dt>
+        <dd>
+<span class="refAuthor">Lynn, K.</span>, <span class="refAuthor">Cheshire, S.</span>, <span class="refAuthor">Blanchet, M.</span>, and <span class="refAuthor">D. Migault</span>, <span class="refTitle">"Requirements for Scalable DNS-Based Service Discovery (DNS-SD) / Multicast DNS (mDNS) Extensions"</span>, <span class="seriesInfo">RFC 7558</span>, <span class="seriesInfo">DOI 10.17487/RFC7558</span>, <time datetime="2015-07" class="refDate">July 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc7558">https://www.rfc-editor.org/info/rfc7558</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8766">[RFC8766]</dt>
+        <dd>
+<span class="refAuthor">Cheshire, S.</span>, <span class="refTitle">"Discovery Proxy for Multicast DNS-Based Service Discovery"</span>, <span class="seriesInfo">RFC 8766</span>, <span class="seriesInfo">DOI 10.17487/RFC8766</span>, <time datetime="2020-06" class="refDate">June 2020</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc8766">https://www.rfc-editor.org/info/rfc8766</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="I-D.cheshire-dnssd-roadmap">[ROADMAP]</dt>
+        <dd>
+<span class="refAuthor">Cheshire, S.</span>, <span class="refTitle">"Service Discovery Road Map"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-cheshire-dnssd-roadmap-03</span>, <time datetime="2018-10-23" class="refDate">23 October 2018</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-cheshire-dnssd-roadmap-03">https://datatracker.ietf.org/doc/html/draft-cheshire-dnssd-roadmap-03</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="I-D.lemon-srp-replication">[REPLICATION]</dt>
+        <dd>
+<span class="refAuthor">Lemon, T.</span>, <span class="refAuthor">Keshavarzian, A.</span>, and <span class="refAuthor">J. Hui</span>, <span class="refTitle">"Automatic Replication of DNS-SD Service Registration Protocol Zones"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-lemon-srp-replication-03</span>, <time datetime="2023-02-22" class="refDate">22 February 2023</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-lemon-srp-replication-03">https://datatracker.ietf.org/doc/html/draft-lemon-srp-replication-03</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="I-D.lemon-stub-networks">[STUBNET]</dt>
+        <dd>
+<span class="refAuthor">Lemon, T.</span>, <span class="refTitle">"Automatically Connecting Stub Networks to Unmanaged Infrastructure"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-lemon-stub-networks-07</span>, <time datetime="2022-11-10" class="refDate">10 November 2022</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-lemon-stub-networks-07">https://datatracker.ietf.org/doc/html/draft-lemon-stub-networks-07</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="ZC">[ZC]</dt>
+      <dd>
+<span class="refAuthor">Cheshire, S.</span> and <span class="refAuthor">D. H. Steinberg</span>, <span class="refTitle">"Zero Configuration Networking: The Definitive Guide"</span>, <span class="refContent">O'Reilly Media, Inc.</span>, <span class="seriesInfo">ISBN 0-596-10100-7</span>, <time datetime="2005-12" class="refDate">December 2005</time>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</section>
+<div id="authors-addresses">
+<section id="appendix-A">
+      <h2 id="name-authors-addresses">
+<a href="#name-authors-addresses" class="section-name selfRef">Authors' Addresses</a>
+      </h2>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Stuart Cheshire</span></div>
+<div dir="auto" class="left"><span class="org">Apple Inc.</span></div>
+<div dir="auto" class="left"><span class="street-address">One Apple Park Way</span></div>
+<div dir="auto" class="left">
+<span class="locality">Cupertino</span>, <span class="region">California</span> <span class="postal-code">95014</span>
+</div>
+<div dir="auto" class="left"><span class="country-name">United States of America</span></div>
+<div class="tel">
+<span>Phone:</span>
+<a href="tel:+1%20(408)%20996-1010" class="tel">+1 (408) 996-1010</a>
+</div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:cheshire@apple.com" class="email">cheshire@apple.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Ted Lemon</span></div>
+<div dir="auto" class="left"><span class="org">Apple Inc.</span></div>
+<div dir="auto" class="left"><span class="street-address">One Apple Park Way</span></div>
+<div dir="auto" class="left">
+<span class="locality">Cupertino</span>, <span class="region">California</span> <span class="postal-code">95014</span>
+</div>
+<div dir="auto" class="left"><span class="country-name">United States of America</span></div>
+<div class="tel">
+<span>Phone:</span>
+<a href="tel:+1%20(408)%20996-1010" class="tel">+1 (408) 996-1010</a>
+</div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:elemon@apple.com" class="email">elemon@apple.com</a>
+</div>
+</address>
+</section>
+</div>
+<script>const toc = document.getElementById("toc");
+toc.querySelector("h2").addEventListener("click", e => {
+  toc.classList.toggle("active");
+});
+toc.querySelector("nav").addEventListener("click", e => {
+  toc.classList.remove("active");
+});
+</script>
+</body>
+</html>
