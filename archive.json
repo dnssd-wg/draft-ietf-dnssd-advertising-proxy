@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2023-11-16T00:46:30.864713+00:00",
+  "timestamp": "2023-11-19T00:50:20.783416+00:00",
   "repo": "dnssd-wg/draft-ietf-dnssd-advertising-proxy",
   "labels": [
     {
@@ -89,7 +89,81 @@
           "updatedAt": "2023-11-05T18:05:01Z"
         }
       ]
+    },
+    {
+      "number": 3,
+      "id": "I_kwDOIvuoQc53Fejq",
+      "title": "extra references",
+      "url": "https://github.com/dnssd-wg/draft-ietf-dnssd-advertising-proxy/issues/3",
+      "state": "OPEN",
+      "author": "moonshiner",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "with the big cleanup need to remove references for RFC5625 and RFC7558\r\n\r\nwill send pull request",
+      "createdAt": "2023-11-16T22:49:58Z",
+      "updatedAt": "2023-11-16T22:49:58Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 5,
+      "id": "I_kwDOIvuoQc53FqBh",
+      "title": "xml nit",
+      "url": "https://github.com/dnssd-wg/draft-ietf-dnssd-advertising-proxy/issues/5",
+      "state": "OPEN",
+      "author": "moonshiner",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "Why you will hate me\r\n\r\nfrom reading the authors-tools site on schema https://authors.ietf.org/en/templates-and-schemas\r\n\r\nI believe you can replace your <!DOCTYPE rfc SYSTEM \"rfc2629.dtd\" >\r\n\r\nwith this\r\n\r\n<?xml-model href=\"rfc7991bis.rnc\"?>\r\n<!DOCTYPE rfc [\r\n  <!ENTITY nbsp    \"&#160;\">\r\n  <!ENTITY zwsp   \"&#8203;\">\r\n  <!ENTITY nbhy   \"&#8209;\">\r\n  <!ENTITY wj     \"&#8288;\">\r\n]>\r\n\r\n\r\nyes, more.  but it also seems to not make xml2rfc complain like it does currently. \r\n\r\n\r\n",
+      "createdAt": "2023-11-16T23:30:29Z",
+      "updatedAt": "2023-11-17T18:03:45Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "Abhayakara",
+          "authorAssociation": "COLLABORATOR",
+          "body": "I think some of what you typed must have been edited out somehow\u2014the comment doesn't make sense.",
+          "createdAt": "2023-11-17T01:26:39Z",
+          "updatedAt": "2023-11-17T01:26:39Z"
+        },
+        {
+          "author": "moonshiner",
+          "authorAssociation": "NONE",
+          "body": "ARRGH - i failed to even look\r\n\r\nhttps://gist.github.com/moonshiner/aea1448783b5591fd4f2eec04f85d646\r\n\r\nI really fail at quoting/escaping it seems\r\n",
+          "createdAt": "2023-11-17T18:03:44Z",
+          "updatedAt": "2023-11-17T18:03:44Z"
+        }
+      ]
     }
   ],
-  "pulls": []
+  "pulls": [
+    {
+      "number": 4,
+      "id": "PR_kwDOIvuoQc5fsBKk",
+      "title": "remove unused refs",
+      "url": "https://github.com/dnssd-wg/draft-ietf-dnssd-advertising-proxy/pull/4",
+      "state": "OPEN",
+      "author": "moonshiner",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "remove unused refs after text cleanup",
+      "createdAt": "2023-11-16T22:55:31Z",
+      "updatedAt": "2023-11-16T22:55:31Z",
+      "baseRepository": "dnssd-wg/draft-ietf-dnssd-advertising-proxy",
+      "baseRefName": "main",
+      "baseRefOid": "cc71668232f6cd8a6a43e0a3e91f0f5a92c7128b",
+      "headRepository": "moonshiner/draft-ietf-dnssd-advertising-proxy",
+      "headRefName": "rm-refs",
+      "headRefOid": "2b1ea8efe86db53b2d05193f1bd26e174837816a",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
+    }
+  ]
 }
