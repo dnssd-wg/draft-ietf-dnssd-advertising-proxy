@@ -5,7 +5,7 @@
 DNSSD                                                        S. Cheshire
 Internet-Draft                                                  T. Lemon
 Intended status: Standards Track                              Apple Inc.
-Expires: 15 October 2023                                   13 April 2023
+Expires: 5 September 2024                                   4 March 2024
 
 
        Advertising Proxy for DNS-SD Service Registration Protocol
@@ -14,7 +14,7 @@ Expires: 15 October 2023                                   13 April 2023
 Abstract
 
    An Advertising Proxy advertises the contents of a DNS zone, for
-   example maintained using the DNSSD Service Registration Protocol
+   example maintained using the DNS-SD Service Registration Protocol
    (SRP), using multicast DNS.  This allows legacy clients to discover
    services registered with SRP using multicast DNS.
 
@@ -51,11 +51,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 15 October 2023.
+   This Internet-Draft will expire on 5 September 2024.
 
 Copyright Notice
 
-   Copyright (c) 2023 IETF Trust and the persons identified as the
+   Copyright (c) 2024 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -72,16 +72,14 @@ Table of Contents
    1.  Introduction
      1.1.  Conventions and Terminology Used in This Document
    2.  Advertising Proxy
-     2.1.  The mDNS Registrar function
-     2.2.  The Advertising Proxy function
-     2.3.  The SRP Registrar function
-     2.4.  The DNS Authoritative Server function
-       2.4.1.  Discovery Proxy
-       2.4.2.  Full Service Resolver
-     2.5.  Operation
-       2.5.1.  Late Conflicts
-       2.5.2.  No Text-Encoding Translation
-       2.5.3.  No Support for Reconfirm
+     2.1.  Mapping non-'.local.' domain names to '.local.'
+       2.1.1.  The DNS Dataset
+       2.1.2.  How to rewrite names
+       2.1.3.  Handling of address records that are not global in
+               scope
+       2.1.4.  Conflicts and Stale Data
+       2.1.5.  No Text-Encoding Translation
+       2.1.6.  No Support for Reconfirm
    3.  Security Considerations
    4.  IANA Considerations
    5.  References
@@ -100,27 +98,31 @@ Table of Contents
    However, in some applications, multicast may be a poor choice for
    advertising.  Most obviously, multicast DNS is constrained to a
    single network link, and for example in the case of stub networks
-   [STUBNET], service discovery for devices on the stub network
-   necessarily requires some kind of proxy.
+   [STUBNET], service discovery for devices on the stub network by
+   devices on the infrastructure network, or vice versa, requires some
+   kind of proxy.
 
    Also, even in single-link use cases, multicast isn't always the best
    choice.  On some network media, multicast is inefficient and/or
-   unreliable.  Also, mDNS-based DNSSD requires that each host providing
-   services receive and process all service discovery requests even for
-   services they don't offer.  For power-constrained hosts, keeping a
-   radio listening all the time is prohibitively expensive.
+   unreliable.  Also, mDNS-based DNS-SD requires that each host
+   providing services receive and process all mDNS service discovery
+   messages, whether or not they are relevant to that host (for example,
+   irrelevant service advertisements and queries for services not
+   provided by the host).  For power-constrained hosts, keeping a radio
+   listening all the time for these messages is prohibitively expensive.
 
    Ideally, in situations where multicast DNS is not the right choice,
    an obvious alternative is to use regular unicast DNS [RFC1035].
    Unfortunately, this isn't always possible: the DNS protocol relies on
    a delegation hierarchy, and on per-network DNS resolvers.
 
-   The operational model for such servers is that any particular network
-   infrastructure provides a DNS resolver, and all DNS queries go to
-   that resolver.  So using unicast DNS for discovery of services
-   through a stub network proxy, for example, would require that the
-   stub network proxy be able to somehow register with the
-   infrastructure DNS service.  This isn't usually possible.
+   The operational model for DNS service is that the infrastructure
+   serving each network link provides a DNS resolver, and all DNS
+   queries go to that resolver.  Using unicast DNS for discovery of
+   services through a stub network proxy, for example, would require
+   that the stub network proxy be able to somehow register with the
+   infrastructure DNS service.  No standard mechanism for doing this
+   currently exists.
 
    This document describes a new type of proxy, an Advertising Proxy,
    which can be used to address some of these issues.  An Advertising
@@ -132,53 +134,15 @@ Table of Contents
    make those services discoverable to devices on links supported by the
    Advertising Proxy.
 
-   In its simplest realization, an advertising proxy monitors the
-   contents of a DNS zone.  When a new DNS resource record is added to
-   the zone, the advertising proxy rewrites that record, replacing the
-   domain name of the zone with ".local," and advertises the result
-   using mDNS on one or more network links.
-
-   However, more commonly, the advertising proxy function is combined
-   with an SRP registrar.  In this case, the SRP registrar and the
-   advertising proxy service cooperate to minimize name collisions.
-   Such a service may or may not actually respond to DNS queries.
-
-   When an Advertising Proxy is implemented as part of an SRP registrar
-   (a DNS authoritative server that implements Service Registration
-   Protocol), an SRP requestor can send registration requests for any
-   valid DNS records to the SRP registrar.  In practice, the most common
-   use is to register the PTR, SRV and TXT records that describe a DNS-
-   SD service [RFC6763], and the A and AAAA records that give the IPv4
-   and/or IPv6 addresses of the host on which that service can be
-   reached.
-
-   Although, as we've said, an Advertising Proxy can monitor a DNS zone
-   and advertise its contents, this is not a compelling use case.  The
-   reason for this is that we can assume that all DNSSD implementations
-   will discover and use infrastructure provided service discovery using
-   the DNS protocol if it is available.  We do not need to support a use
-   case where a consumer of DNSSD only implements multicast DNS.
-
-   An authoritative DNS zone that is not managed as part of the
-   Advertising Proxy really can only exist as an infrastructure service.
-   If it exists as an infrastructure service, the right way to make it
-   available is to make it discoverable using the mechanisms described
-   in Section 11 of [RFC6763].  Since no use case exists for this model
-   of Advertising Proxy, we do not attempt to specify how such an
-   Advertising Proxy could be made to work.
-
-   Similarly, an Advertising Proxy that, as part of its functioning,
-   answers unicast DNS queries, would ideally be included in the DNS
-   service provided by the infrastructure, and in this case the
-   Advertising Proxy function would not be necessary.  However, because
-   in this case the Advertising Proxy functionality is superfluous,
-   discussion of this topic is out of scope for this document.
-
-   Therefore, this document limits itself to describing how to implement
-   an Advertising Proxy that manages service registrations using the
-   Service Registration Protocol.  We do talk about how the Service
-   Registration Protocol database should be advertised, but not how it
-   can be integrated into an existing DNS infrastructure.
+   One way of providing this service discovery functionality is through
+   an Advertising Proxy.  An advertising proxy functions to replicate
+   some or all of the contents of a DNS zone using multicast DNS.  This
+   is limited by the fact that the DNS zone is a dataset, and the set of
+   names discoverable in mDNS is constructed cooperatively, so the
+   advertising proxy is not authoritative in the same sense that a DNS
+   server is authoritative for any particular zone.  This means that in
+   some cases a name that is present in the DNS zone may conflict with a
+   name already published by some other mDNS responder.
 
 1.1.  Conventions and Terminology Used in This Document
 
@@ -190,91 +154,188 @@ Table of Contents
 
 2.  Advertising Proxy
 
-   An Advertising Proxy advertises the contents of one or more DNS zones
-   that are maintained using the Service Registration Protocol.  Such a
-   service consists of three parts, four of which are required, one of
-   which is optional.  These are:
+   The advertising proxy works by publishing records from a DNS zone
+   using multicast DNS [RFC6762].  The set of records published may
+   include every record in the DNS zone, or a subset determined either
+   automatically or administratively.  When a record published in the
+   DNS zone has the same name as a record published by some device that
+   is not the advertising proxy, this will produce a conflict, and the
+   advertising proxy must address this conflict.
 
-   *  The mDNS Registrar function
-   *  The Advertising Proxy function
-   *  The SRP registrar function, which includes:
-      -  The SRP protocol implementation
-      -  The zone database that is updated using the SRP protocol
-   *  The DNS authoritative server function, which may include any or
-      all of:
-      -  Authoritative DNS service for all zones managed by SRP
-      -  Discovery Proxy service for all links managed by the
-         Advertising Proxy
-      -  Full-service DNS resolver or DNS Proxy
+   Although we will in some cases refer to aspects of the mDNS protocol
+   in this document, it is worth emphasizing that the typical
+   implementor of an advertising proxy should not expect to have to do
+   their own mDNS implementation: most platforms already provide a
+   library that allows records and/or services to be published using
+   mDNS.  So our goal in discussing mDNS protocol details is to motivate
+   choices that the implementor will make in their use of these
+   libraries.
 
-   These functions are somewhat interdependent, so while we will discuss
-   each separately, there is no way to completely separate them.  After
-   discussing each function, we will describe the operation of the
-   system as a whole.
+   The simplest implementation of an advertising proxy will simply act
+   on some signal indicating that the DNS zone has been updated.  When
+   this signal is received, the advertising proxy will terminate
+   whatever mDNS registrations it is currently doing, and then iterate
+   across the set of names in the zone, publishing all of the RRsets on
+   each name in the DNS.
 
-2.1.  The mDNS Registrar function
+   Of course, this simple approach to an advertising proxy has some
+   issues.  Multicast traffic on some link types (e.g., IEEE 802.11)
+   consumes substantially more airtime than unicast traffic, so efforts
+   should be made to minimize such traffic where possible.  Also, the
+   act of unpublishing an advertised record can be seen by consumers of
+   the information in that record as an indication that whatever host or
+   service that record represents is no longer present.
 
-   The mDNS registrar function is an mDNS responder, as described in
-   [RFC6762].  We use the term "mDNS registrar" rather than simply "mDNS
-   responder" to emphasize the specific function of advertising mDNS
-   records, as opposed to browsing or resolving services.
+   For these reasons, it is better if the advertising proxy can notice
+   changes to the DNS zone, and only remove records from mDNS when they
+   have been removed from the zone.  New records in the zone will be
+   newly advertised, of course, just as with the previous approach.
 
-   If Discovery Proxy authoritative resolution service is being offered
-   by the Advertising Proxy, the mDNS registrar MUST support querying
-   for services and records on the link that are not advertised by the
-   Advertising Proxy.
+2.1.  Mapping non-'.local.' domain names to '.local.'
 
-   The mDNS Registrar MUST implement the Time Since Received [TSR]
-   record.  This makes it possible to set up redundant Advertising
-   Proxies that use SRP replication [REPLICATION] to maintain a common
-   set of SRP zones and advertise them without SRP Updates creating
-   conflicts.  Such conflicts can occur when, for example, the IP
-   address of a host changes and it sends an SRP update.  The new IP
-   address conflicts with the old address, which is being advertised.
-   Without TSR, the old address will win the conflict, resulting in
-   stale data being advertised.  With TSR, the newer data supersedes the
-   old data.
+   Multicast DNS supports advertising of arbitrary names.  However, the
+   mechanism by which names in the DNS hierarchy are found is DNS, not
+   mDNS, with one exception: names ending in '.local.'.  Consequently,
+   we can't simply publish names using mDNS with the same name that they
+   have in the DNS hierarchy, because queries for those names will use
+   DNS rather than mDNS.
 
-2.2.  The Advertising Proxy function
+   But what does it mean to rewrite a name?
 
-   The Advertising Proxy function mediates between an mDNS registrar and
-   the SRP zone database.  Whenever a record is tentatively added to the
-   SRP zone database, the Advertising Proxy registers it with the mDNS
-   registrar.  If this registration succeeds, the registration is
-   finalized; otherwise it is rejected.  The usual reason for rejection
-   would be that the name is already taken.  When records expire in the
-   SRP zone database, the Advertising Proxy function removes those
-   records from its mDNS advertisement.
+2.1.1.  The DNS Dataset
 
-   Each SRP Update includes a KEY record that is applicable to every
-   name claimed in the Update.  SRP Update also includes an EDNS0 Update
-   Lease option which may include a KEY-LEASE value that's longer than
-   the LEASE value.  In this case, the Advertising Proxy SHOULD
-   advertise the KEY record for the duration of the KEY-LEASE, even if
-   the other records are removed when the LEASE value has expired.  The
-   Advertising Proxy MAY advertise the KEY record even if the LEASE and
-   KEY-LEASE values are the same, or the KEY-LEASE valid isn't
-   specified.
+   DNS has the concept of a "zone," which is a subset of the domain name
+   hierarchy over which some DNS server or servers assert authority.
+   That authority is confirmed because a name server that is
+   authoritative for a zone higher in the domain name hierarchy
+   publishes a delegation naming the DNS server or servers that are
+   authoritative for the subdomain.
 
-   Records advertised by the Advertising Proxy all appear in the .local
-   domain.  Consequently, these records MUST be rewritten in somewhat
-   the opposite of the way a Discovery Proxy Section 5.5 of [RFC8766]
-   rewrites them.
+   As an example, the root ('.') zone has a set of authoritative servers
+   that advertise it, and contains delegations for "top-level domains"
+   like 'com.'. 'com.' is also a zone.  However, it is not necessarily
+   the case that a zone exists at only one level of the DNS hierarchy.
+   A zone can include more than one level.  For example, consider the
+   reverse zone 'ip6.arpa.'.  Here the subdomain will generally cover at
+   least an IPv6 64-bit prefix.
 
-   Each zone managed by the SRP registrar function must have a name.  In
-   some cases, SRP requestor will discover the name using the Domain
-   Enumeration process described in Section 11 of [RFC6763].  However in
-   most cases, since advertising proxies aren't integrated into
-   infrastructures, the registration domain used by the SRP requestor
-   will be the 'default.service.arpa.' domain.  The SRP registrar may
-   rewrite incoming registrations into a different zone, or retain the
-   'default.service.arpa.' zone name.
+   So if we consider an IPv6 prefix '2001:db8:1234:5678::/64', the
+   reverse zone for this will likely be
+   '8.7.6.5.4.3.2.1.8.b.d.0.1.0.0.2.ip6.arpa.'.  There will most likely
+   be 16 more labels below the zone cut that are still part of the zone.
 
-   In either case, before advertising a tentative record, the
-   Advertising Proxy function first rewrites the record.  First, the
-   owner name is transformed by replacing the zone name with '.local'.
-   Secondly, for any RR that contains a domain name, that domain is
-   transformed in the same way.
+   For the DNS Service Discovery use case, this is quite common.  A
+   service instance name in mDNS will typically look something like
+   'hostname._example._udp.<domain>.'  A hostname on the other hand will
+   look like 'hostname.<domain>.'  So we need to distinguish between the
+   name of the zone in which a name is advertised, the set of subdomains
+   that actually represent additional domains in which names can be
+   advertised, and subdomains that are part of the structure of the
+   name.
+
+   For this reason, rather than speaking of DNS zones here, it would be
+   more accurate to use another term that represents the <domain> part
+   of the names above.  We will use the term 'dataset' here, since this
+   term is also used in the SRP Replication document [REPLICATION].
+
+   This means that an advertising proxy acts as a proxy for one or more
+   datasets, rather than one or more zones.  Which datasets the
+   advertising proxy advertises with mDNS will either be determined
+   automatically, or explicitly configured.  It's entirely possible for
+   the advertising proxy to act as a proxy for 'example.com.' and
+   'foo.example.com.'.  Both 'example.com' and 'foo.example.com' are
+   dataset names in this example.
+
+2.1.2.  How to rewrite names
+
+   Before advertising a record, the Advertising Proxy MUST rewrite the
+   record.  This means that both the owner name of the record and any
+   names that appear as part of the record must be rewritten if they are
+   subdomains of the domain name of the DNS dataset.  Of course the
+   owner name will always be a subdomain of the DNS dataset name, but
+   this won't always be true for the content of the resource record.
+
+   It may also make sense specifically for the PTR record to do a
+   different rewrite for the owner name than for the target of the PTR
+   record, depending on the way that we choose to rewrite the names.
+   There are three ways that we can rewrite names, depending on the
+   context:
+
+   *  Rewrite the dataset name directly to '.local.'.  This has the
+      benefit of simplicity.  When the data for which the advertising
+      proxy is acting as proxy is DNSSD data, for any service that is
+      being advertised, there will be a set of PTR records of the form
+      '_example._transport.<domain>.'.  If we rewrite <domain> to
+      'local', then a browse for the service '_example._transport' in
+      the local domain will return the services being advertised.
+
+      The downside to this approach is that it doesn\'t safely handle
+      name conflicts: if there are two datasets for which one or more
+      advertising proxies are acting as proxy, and each zone contains a
+      device with the name 'george', then this will produce a conflict
+      that can't easily be resolved: the name is necessarily unique in
+      each dataset, but when the two datasets are both mapped into the
+      '.local.' namespace, they are in conflict.  There is no way to
+      resolve this.
+
+      Consider an RR that might appear in a dataset with a domain name
+      of 'default.service.arpa.':
+      '_example._transport.default.service.arpa.  IN PTR
+      hostname._example._transport.default.service.arpa.'.  This would
+      be rewritten to '_example._transport.local IN PTR
+      hostname._example._transport.local.'.
+
+   *  Use a dataset-specific subdomain of '.local.' for each dataset.
+      For example, when we are maintaining the dataset using SRP, the
+      SRP dataset will have a unique identifier, which we can in
+      principle use here.  So the domain into which we would rewrite the
+      records from this dataset would then take the binary dataset ID
+      and probably encode it as hexadecimal, producing '<dataset-
+      id>.local.' as the target domain.
+
+      There is a problem with this approach however: devices browsing
+      for services in '.local.' will not know to also browse in this
+      subdomain of '.local.'.  In order to fix this, the owner name of
+      the PTR records being advertised will have to be rewritten into
+      the '.local.' domain rather than '<dataset-id>.local.'.  This is
+      perfectly okay, however, since these PTR records are not required
+      to be unique.
+
+      If the domain being proxied has PTR records that are not being
+      used to advertise services, and all PTR records are rewritten into
+      the '.local.' domain, this could be a problem.  However, since the
+      primary use case for the advertising proxy is DNS Service
+      Discovery, and additionally since PTR records generally are only
+      used for service discovery and reverse lookups, it should be safe
+      to rewrite PTR records to '.local.' for zones that are not reverse
+      lookup zones.  Reverse lookups are already documented in [RFC6762]
+      and should not generally require an advertising proxy.
+
+      As an example of the PTR rewrite, if the dataset identifier is
+      5c4d2e9ab4 and the dataset domain name is default.service.arpa,
+      the record '_example._transport.default.service.arpa.  IN PTR
+      hostname._example._transport.default.service.arpa' would be
+      rewritten to '_example._transport.local IN PTR
+      hostname._example._transport.5c4d2e9ab4.local.'.
+
+   *  Append '.local.' to the dataset's domain name.  For cases where
+      there is no SRP replication dataset name, the dataset's domain
+      name can be used in the same way.  The reason not to do this is
+      simply that it results in a longer name, and could theoretically
+      run afoul of domain name length limits.  The rewrite here would be
+      from, e.g., 'hostname.default.service.arpa.' to
+      'hostname.default.service.arpa.local.'.
+
+      As with the dataset-specific subdomain of '.local.', the owner
+      name for PTR records should be rewritten directly into '.local.'.
+      So for example, the service advertisement in the earlier example,
+      assuming a dataset domain name of 'default.service.arpa.', would
+      be rewritten from '_example._transport.default.service.arpa.  IN
+      PTR hostname._example._transport.default.service.arpa' to
+      '_example._transport.local IN PTR
+      hostname._example._transport.default.service.arpa.local.'.
+
+2.1.3.  Handling of address records that are not global in scope
 
    In some cases, the SRP requestor may register one or more address
    records for addresses that aren't valid or reachable on some link on
@@ -290,134 +351,59 @@ Table of Contents
    specific link-scoped address, on any link other than the link on
    which the SRP registration was received.
 
-2.3.  The SRP Registrar function
+   However, when a determination as to the link on which a particular
+   address record is valid isn't being made, either because this
+   capability isn't implemented by the advertising proxy, or because
+   that information isn't available, the advertising proxy MUST
+   advertise locally-scoped address.
 
-   The SRP registrar function comprises two components: the SRP protocol
-   and the zone database (or databases).  The details of the SRP
-   protocol are described in [SRP].
+2.1.4.  Conflicts and Stale Data
 
-   In the context of an Advertising Proxy, the SRP protocol will be
-   updating one or more DNS zones.  It's possible, for example, for an
-   SRP registrar to provide SRP service on more than one link, and for
-   each link to be treated as a separate DNS zone.  SRP requestors may
-   not know what zone they are updating: they may be using
-   'default.service.arpa' as a placeholder rather than discovering the
-   name of the zone to update.  In this case, updates for
-   'default.service.arpa' will be rewritten into the name of the zone
-   specific to a particular link.  Note that this separation is not
-   required, but is possible and may be desirable.
+   There are two issues that can come up when advertising a DNS zone
+   using mDNS that appear quite similar on the surface, but are actually
+   fairly different.  These both show up as a "conflict," but in fact
+   only one is actually a conflict.
 
-   In an Advertising Proxy, when an SRP update is received, it is first
-   validated according to the SRP specification.  It is then checked for
-   uniqueness in the context of SRP, using the SRP first-come, first-
-   served mechanism.  Unlike a DNS-only SRP registrar, an Advertising
-   Proxy registrar must complete two additional uniqueness checks for
-   any name being registered.
+   A conflict occurs when two different devices assert authority for the
+   same name.  However, stale data can also appear as a conflict, even
+   though there is only one device asserting authority for the data.
+   The problem of stale data occurs when we have more than one
+   advertising proxy replicating the same DNS dataset.
 
-   First, the name must be unique across all DNS zones that are being
-   advertised together on the same link by the Advertising Proxy.  That
-   is, if the zone being updated is advertised on any link, then the
-   name being registered must be unique in every zone that is being
-   advertised on that link.  If the zone is being advertised on multiple
-   links, then for each link, the name must be unique across all the
-   zones advertised on that link.
+   For actual conflicts, there is no need to do anything special.
+   Either the advertising proxy will prevail, or the other mDNS service
+   will.  If the advertising proxy does not prevail, it can attempt
+   again to advertise the record after some reasonable interval has
+   passed.  This could either be the next time the record in question is
+   updated (e.g. because of an SRP lease renewal) or a fixed interval.
 
-   Secondly, the name must not already be being advertised via mDNS.
-   This is easy to check: the Advertising Proxy tentatively advertises
-   the name on all links that the corresponding zone is being advertised
-   on.  If every tentative advertisement succeeds without detecting a
-   conflict, then the advertisement has been successful.  At this point
-   the SRP registrar can confirm with the requestor that its
-   registration has succeeded.
+   mDNS specifies that conflicts should be resolved by renaming.
+   Instead of continuing to try to claim the name that is in conflict,
+   the advertising proxy MAY rename following the mDNS renaming method.
+   In this case, the mapping between the new name and the name as it
+   appears in the DNS dataset must be maintained until such time as the
+   conflict no longer exists.  So this approach requires maintaining
+   some state.
 
-   If, on the other hand, a conflict is detected in any part of this
-   process, then the SRP registrar informs the requestor that the name
-   is already taken, by returning the YXDOMAIN response code.
+   If the advertising proxy renames owner names into a subdomain of
+   '.local' rather than into '.local.', then actual conflicts should
+   never occur, since what is being proxied is a single dataset.  So
+   when we encounter an apparent conflict using these models, it can't
+   be an actual conflict, but rather stale data, and then the question
+   is simply what to do next.
 
-2.4.  The DNS Authoritative Server function
+   It should be the case in such situations that the problem will
+   correct itself over time.  Some advertising proxy will win the
+   apparent conflict, and so some version of the data will be findable.
+   However, following the usual mDNS conflict detection strategy, it is
+   most likely that a conflict will be resolved in favor of the stale
+   data, not the new data.  This can result in persistent stale data
+   being advertised by the advertising proxy.
 
-   An Advertising Proxy SHOULD answer DNS queries for the zones it
-   manages.  This is not required because in some cases it may not be
-   possible.  The zones it manages may not have names in the DNS
-   hierarchy, for example, so even if they have locally-assigned names,
-   answering authoritatively for these names may be problematic.
+   To prevent stale data winning over updated data, advertising proxies
+   MUST support the Time Since Registered EDNS0 option [TSR].
 
-   The primary purpose of the Advertising Proxy is to support DNS
-   Service Discovery.  In some use cases where Advertising Proxy is
-   desirable, the mDNS function can only work on some links, while
-   unicast DNS is the only option on others.  This is the case, for
-   example, for an Advertising Proxy operating on a stub network router.
-
-   In such a situation, devices on the infrastructure link will do
-   service discovery using mDNS.  However, devices on the stub network
-   link may not be able to use mDNS, or it may be preferable that they
-   do not.  In this case, the Advertising Proxy will need to be able to
-   provide the same information that is provided on the infrastructure
-   link through a DNS resolver, using the DNS protocol, or, ideally, DNS
-   Push [RFC8765].
-
-   Any Advertising Proxy implementing this functionality MAY use the
-   'default.service.arpa.' zone as a catch-all zone.  A query to the
-   'default.service.arpa.' zone SHOULD return the same set of answers
-   that would be returned by an mDNS query to the .local zone on a link
-   served by the Advertising Proxy's mDNS registrar.
-
-   When using the 'default.service.arpa.' zone for queries, all
-   responses that reference link-specific domains MUST be rewritten to
-   use 'default.service.arpa.' domain instead.  This includes domain
-   names in the resource record data.  Because the Advertising Proxy is
-   required to enforce name uniqueness across all the zones it manages,
-   this should not result in any conflicts.
-
-2.4.1.  Discovery Proxy
-
-   In order to fully support the ability to query the Advertising Proxy
-   either with mDNS or DNS, it is necessary to provide a Discovery Proxy
-   [RFC8766].  The Discovery Proxy provides answers for link-specific
-   domains that represent each of the links supported by the Advertising
-   Proxy.  These responses are combined with responses from zones
-   managed by SRP to produce a complete set of answers to any query
-   received by the Advertising Proxy over DNS or DNS Push.
-
-2.4.2.  Full Service Resolver
-
-   In the case of a stub network, the Advertising Proxy may appear to
-   devices on the stub network as an infrastructure service.  This would
-   mean that the DNS Listener on port 53 (TCP and UDP) and port 853
-   (TLS) could be expected to receive queries for arbitrary domain
-   names, not just domain names for which the Advertising Proxy is
-   authoritative.
-
-   Resolution of such names may not be required for devices on the stub
-   network.  For instance, if the stub network has only locally-provided
-   IPv6 service using a ULA, devices on the stub network will not be
-   able to contact arbitrary devices on the Internet anyway.
-
-   However, in cases where support for connecting to hosts outside of
-   the scope of the Advertising Proxy is needed, the Advertising Proxy
-   will have to provide a full service resolver (or a DNS Proxy
-   [RFC5625]) in addition to its DNS authoritative service and Discovery
-   Proxy service.  The details of how this is configured are likely to
-   be implementation-specific, and therefore outside the scope of this
-   document.
-
-2.5.  Operation
-
-2.5.1.  Late Conflicts
-
-   It is possible for two mDNS responders to advertise conflicting
-   records on the same name, but, as a consequence of a network
-   partition or multicast packet loss, for neither server to immediately
-   detect a conflict.  When this happens, then at some later time one or
-   the other mDNS responder will notice the conflict, and begin the
-   conflict resolution process.  The outcome of this process may be that
-   the record advertised by the Advertising Proxy loses.  In this case,
-   the Advertising Proxy MUST stop advertising this record and remove it
-   from its database.  There is no way to notify the client when this
-   happens, but when the client tries to renew its registration, the
-   conflict can be reported.
-
-2.5.2.  No Text-Encoding Translation
+2.1.5.  No Text-Encoding Translation
 
    As with a Discovery Proxy [RFC8766], an Advertising Proxy does no
    translation between text encodings [RFC6055].  Specifically, an
@@ -435,7 +421,7 @@ Table of Contents
    directly from the advertised data without any text-encoding
    translation.
 
-2.5.3.  No Support for Reconfirm
+2.1.6.  No Support for Reconfirm
 
    For network efficiency, Multicast DNS [RFC6762] uses fairly long
    record lifetimes (typically 75 minutes).  When a client is unable to
@@ -535,14 +521,15 @@ Table of Contents
 
    [SRP]      Lemon, T. and S. Cheshire, "Service Registration Protocol
               for DNS-Based Service Discovery", Work in Progress,
-              Internet-Draft, draft-ietf-dnssd-srp-19, 26 March 2023,
+              Internet-Draft, draft-ietf-dnssd-srp-25, 4 March 2024,
               <https://datatracker.ietf.org/doc/html/draft-ietf-dnssd-
-              srp-19>.
+              srp-25>.
 
    [TSR]      Lemon, T. and L. Qin, "Multicast DNS conflict resolution
-              using the Time Since Received (TSR) RR", Work in Progress,
-              Internet-Draft, draft-tllq-tsr-03, 13 March 2023,
-              <https://datatracker.ietf.org/doc/html/draft-tllq-tsr-03>.
+              using the Time Since Received (TSR) EDNS option", Work in
+              Progress, Internet-Draft, draft-tllq-tsr-05, 21 October
+              2024,
+              <https://datatracker.ietf.org/doc/html/draft-tllq-tsr-05>.
 
 5.2.  Informative References
 
@@ -582,16 +569,16 @@ Table of Contents
    [REPLICATION]
               Lemon, T., Keshavarzian, A., and J. Hui, "Automatic
               Replication of DNS-SD Service Registration Protocol
-              Zones", Work in Progress, Internet-Draft, draft-lemon-srp-
-              replication-03, 22 February 2023,
-              <https://datatracker.ietf.org/doc/html/draft-lemon-srp-
-              replication-03>.
+              Zones", Work in Progress, Internet-Draft, draft-ietf-
+              dnssd-srp-replication-02, 4 March 2024,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-dnssd-
+              srp-replication-02>.
 
-   [STUBNET]  Lemon, T., "Automatically Connecting Stub Networks to
-              Unmanaged Infrastructure", Work in Progress, Internet-
-              Draft, draft-lemon-stub-networks-07, 10 November 2022,
-              <https://datatracker.ietf.org/doc/html/draft-lemon-stub-
-              networks-07>.
+   [STUBNET]  Lemon, T. and J. Hui, "Automatically Connecting Stub
+              Networks to Unmanaged Infrastructure", Work in Progress,
+              Internet-Draft, draft-ietf-snac-simple-06, 4 November
+              2024, <https://datatracker.ietf.org/doc/html/draft-ietf-
+              snac-simple-06>.
 
    [ZC]       Cheshire, S. and D. H. Steinberg, "Zero Configuration
               Networking: The Definitive Guide", O'Reilly Media, Inc.,
