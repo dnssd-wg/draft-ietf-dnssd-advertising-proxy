@@ -1,6 +1,6 @@
 # Advertising Proxy for DNS-SD Service Registration Protocol
 
-This is the working area for the IETF [DNSSD Working Group](https://datatracker.ietf.org/wg/dnssd/documents/) Internet-Draft, "Advertising Proxy for DNS-SD Service Registration Protocol".
+This is the working area for the IETF [DNSSD Working Group](https://datatracker.ietf.org/group/dnssd/documents/) Internet-Draft, "Advertising Proxy for DNS-SD Service Registration Protocol".
 
 * [Editor's Copy](https://dnssd-wg.github.io/draft-ietf-dnssd-advertising-proxy/#go.draft-ietf-dnssd-advertising-proxy.html)
 * [Datatracker Page](https://datatracker.ietf.org/doc/draft-ietf-dnssd-advertising-proxy)
