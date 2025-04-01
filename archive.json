@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-03-30T01:09:20.319437+00:00",
+  "timestamp": "2025-04-01T01:12:18.568902+00:00",
   "repo": "dnssd-wg/draft-ietf-dnssd-advertising-proxy",
   "labels": [
     {
@@ -143,6 +143,22 @@
           "updatedAt": "2023-11-17T18:03:44Z"
         }
       ]
+    },
+    {
+      "number": 6,
+      "id": "I_kwDOIvuoQc6wauJF",
+      "title": "What TTL values to advertise",
+      "url": "https://github.com/dnssd-wg/draft-ietf-dnssd-advertising-proxy/issues/6",
+      "state": "OPEN",
+      "author": "EskoDijk",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "See email: https://mailarchive.ietf.org/arch/msg/dnssd/ajQjxdG7oi8N2zssMdPGfoadfSc/\n",
+      "createdAt": "2025-03-31T08:21:49Z",
+      "updatedAt": "2025-03-31T08:21:49Z",
+      "closedAt": null,
+      "comments": []
     }
   ],
   "pulls": [
