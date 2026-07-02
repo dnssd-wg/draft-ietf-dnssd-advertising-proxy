@@ -39,7 +39,18 @@
       </address>
     </author>
 
-    <date year='2024' month='March' day='4'/>
+    <author initials="E." surname="Dijk" fullname="Esko Dijk">
+      <organization>IoTconsultancy.nl</organization>
+      <address>
+	<postal>
+	  <city>Utrecht</city>
+	  <country>Netherlands</country>
+	</postal>
+	<email>esko.dijk@iotconsultancy.nl</email>
+      </address>
+    </author>
+
+    <date year="2026" month="July" day='2'/>
 
     <area>INT</area>
     <workgroup>DNSSD</workgroup>
@@ -247,7 +258,7 @@
 	    the content of the resource record.
 	  </t>
 	  <t>
-	    It may also make sense specifically for the PTR record to do a different rewrite for the owner
+	    It may also make sense specifically in the case of the PTR record to do a different rewrite for the owner
 	    name than for the target of the PTR record, depending on the way that we choose to rewrite
 	    the names. There are three ways that we can rewrite names, depending on the context:
 	  </t>
@@ -365,8 +376,8 @@
 	  <t>
 	    A conflict occurs when two different devices assert authority for the same
 	    name. However, stale data can also appear as a conflict, even though there is only one
-	    device asserting authority for the data.  The problem of stale data occurs when we
-	    have more than one advertising proxy replicating the same DNS dataset.
+	    device asserting authority for the data.  The problem of stale data occurs when there is
+	    more than one advertising proxy replicating the same DNS dataset.
 	  </t>
 	  <t>
 	    For actual conflicts, there is no need to do anything special. Either the advertising proxy
@@ -397,7 +408,7 @@
 	  </t>
 	  <t>
 	    To prevent stale data winning over updated data, advertising proxies MUST support the
-	    Time Since Registered EDNS0 option <xref target="I-D.tllq-tsr"/>.
+	    Time Since Registered EDNS0 option <xref target="I-D.ietf-dnssd-tsr"/>.
 	  </t>
 	</section>
 	<section numbered="true">
@@ -529,7 +540,7 @@
     <displayreference target="I-D.ietf-dnssd-srp" to="SRP"/>
     <displayreference target="I-D.ietf-dnssd-srp-replication" to="REPLICATION"/>
     <displayreference target="I-D.ietf-snac-simple" to="STUBNET"/>
-    <displayreference target="I-D.tllq-tsr" to="TSR"/>
+    <displayreference target="I-D.ietf-dnssd-tsr" to="TSR"/>
 
     <references>
       <name>References</name>
