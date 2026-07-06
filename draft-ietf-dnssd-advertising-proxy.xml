@@ -330,9 +330,9 @@
 	    </li>
 	    <li>
 	      <t>
-		Append '.local.' to the dataset's domain name. For cases where there is no
-		dataset name, the dataset's domain name can be used in the
-		same way. The reason not to do this is simply that it results in a longer
+		Append '.local.' to the dataset's domain name. For cases where there is no unique
+		dataset identifier, the dataset's domain name can be used instead.
+		The reason not to do this is simply that it results in a longer
 		name, and could theoretically violate domain name length limits.
 		The rewrite here would be from, e.g., 'hostname.default.service.arpa.' to
 		'hostname.default.service.arpa.local.'.
