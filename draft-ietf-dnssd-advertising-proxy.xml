@@ -280,7 +280,7 @@
 	      <t>
 		The downside to this approach is that it doesn't safely handle name
 		conflicts: if there are two datasets for which one or more Advertising
-		Proxies are acting as proxy, and each zone contains a device with the name
+		Proxies are acting as proxy, and each dataset contains a device with the name
 		'george', then this will produce a conflict that can't easily be resolved:
 		the name is necessarily unique in each dataset, but when the two datasets
 		are both mapped into the '.local.' namespace, they are in conflict. There
@@ -316,7 +316,7 @@
 		domain, this could be a problem. However, since the primary use case for the
 		Advertising Proxy is DNS Service Discovery, and additionally since PTR records
 		generally are only used for service discovery and reverse lookups, it should
-		be safe to rewrite PTR records to '.local.' for zones that are not reverse
+		be safe to rewrite PTR records to '.local.' for datasets that are not reverse
 		lookup zones. Reverse lookups are already documented in <xref target="RFC6762"/>
 		and should not generally require an Advertising Proxy.
 	      </t>
@@ -374,7 +374,7 @@
 <section>
   <name>Conflicts and Stale Data</name>
   <t>
-    There are two issues that can come up when advertising a DNS zone using mDNS that
+    There are two issues that can come up when advertising a dataset using mDNS that
     appear quite similar on the surface, but are actually fairly different. These both
     show up as a "conflict," but in fact only one is actually a conflict.
   </t>
