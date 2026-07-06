@@ -89,7 +89,7 @@
 	<xref target="I-D.cheshire-dnssd-roadmap"/>
 	was designed to facilitate Zero Configuration IP Networking
 	<xref target="RFC6760"/>
-	<xref target="ZC"/>.<br/>
+	<xref target="ZC"/>.
 
 	When used with Multicast DNS (mDNS)
 	<xref target="RFC6762"/>
