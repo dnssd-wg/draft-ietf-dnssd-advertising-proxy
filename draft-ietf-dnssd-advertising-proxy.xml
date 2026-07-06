@@ -368,7 +368,7 @@
     However, when a determination as to the link on which a particular IP address record is
     valid isn't being made, either because this capability isn't implemented by the
     Advertising Proxy, or because that information isn't available, the Advertising Proxy
-    MUST advertise locally-scoped IP address records.
+    MUST advertise link-scoped IP address records.
   </t>
 </section>
 <section>
