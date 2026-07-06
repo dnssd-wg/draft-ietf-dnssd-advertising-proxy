@@ -413,7 +413,7 @@
   </t>
   <t>
     To prevent stale data winning over updated data, an Advertising Proxy MUST support the
-    Time Since Registered (TSR) EDNS0 option <xref target="I-D.ietf-dnssd-tsr"/>.
+    Time Since Received (TSR) EDNS0 option <xref target="I-D.ietf-dnssd-tsr"/>.
   </t>
 </section>
 <section numbered="true">
