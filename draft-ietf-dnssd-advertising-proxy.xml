@@ -60,8 +60,8 @@
 
     <abstract>
       <t>An Advertising Proxy advertises the contents of a DNS zone, for example maintained
-      using the DNS-SD Service Registration Protocol (SRP), using multicast DNS. This allows
-      legacy clients to discover services registered with SRP using multicast DNS.</t>
+      using the DNS-SD Service Registration Protocol (SRP), using Multicast DNS. This allows
+      legacy clients to discover services registered with SRP using Multicast DNS.</t>
     </abstract>
     <note removeInRFC="true">
       <name>About This Document</name>
@@ -99,7 +99,7 @@
       </t>
 
       <t>However, in some applications, multicast may be a poor choice for advertising services. Most
-      obviously, multicast DNS is constrained to a single network link, and for example in the
+      obviously, Multicast DNS is constrained to a single network link, and for example in the
       case of stub networks <xref target="I-D.ietf-snac-simple"/>, service discovery
       for devices on the stub network by devices on the infrastructure network, or vice versa,
       requires some kind of proxy.</t>
@@ -111,7 +111,7 @@
       advertisements and queries for services not provided by the host). For energy-constrained
       hosts, keeping a radio listening all the time for these messages is prohibitively expensive.</t>
 
-      <t>Ideally, in situations where multicast DNS is not the right choice, an obvious
+      <t>Ideally, in situations where Multicast DNS is not the right choice, an obvious
       alternative is to use regular unicast DNS <xref target="RFC1035"/>. Unfortunately, this
       isn't always possible: the DNS protocol relies on a delegation hierarchy, and on
       per-network DNS resolvers.</t>
@@ -127,7 +127,7 @@
       zone (or zones) <xref target="RFC1034"/> to one or more network links using multicast
       DNS. This allows the DNS protocol, for example using the Service Registration Protocol (SRP)
       registrar function <xref target="RFC9665"/>, to be used by servers to
-      advertise their services, while using the permissionless model of multicast DNS to make those
+      advertise their services, while using the permissionless model of Multicast DNS to make those
       services discoverable to devices on links supported by the Advertising Proxy.</t>
 
       <t>The operation of an Advertising Proxy is limited by the fact that the DNS zone is a single dataset, while
@@ -159,7 +159,7 @@
     <section numbered="true">
       <name>Advertising Proxy</name>
       <t>
-	The Advertising Proxy works by publishing records from a DNS zone using multicast DNS
+	The Advertising Proxy works by publishing records from a DNS zone using Multicast DNS
 	<xref target="RFC6762"/>. The set of records published may include every record in the
 	DNS zone, or a subset determined either automatically or administratively. When a record
 	published in the DNS zone has the same name as a record published by some device that is
@@ -513,7 +513,7 @@
       </t>
       <t>
         Consequently, reconfirm operations are not supported
-        with an Advertising Proxy using multicast DNS.
+        with an Advertising Proxy using Multicast DNS.
         In cases where use of the reconfirm mechanism
         is important, clients should be upgraded to use the unicast
         DNS Push Notifications <xref target="RFC8765"/> protocol's
