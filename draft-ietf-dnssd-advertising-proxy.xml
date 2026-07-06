@@ -558,8 +558,6 @@
         <xi:include
             href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.2181.xml"/>
         <xi:include
-            href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6760.xml"/>
-        <xi:include
             href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6761.xml"/>
         <xi:include
             href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6762.xml"/>
@@ -585,6 +583,8 @@
             href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.3629.xml"/>
         <xi:include
             href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6055.xml"/>
+        <xi:include
+            href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6760.xml"/>
         <xi:include
             href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8766.xml"/>
 
