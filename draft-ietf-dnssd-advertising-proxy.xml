@@ -348,184 +348,184 @@
 	    </li>
 	  </ol>
 	</section>
-	<section>
-	  <name>Handling of IP address records that are not global in scope</name>
-	  <t>
-	    In some cases, an SRP requester may register one or more IP address records for
-	    addresses that aren't valid or reachable on some link on which the Advertising Proxy
-	    could advertise them. The Advertising Proxy function MAY filter out such address records
-	    entirely, or MAY explicitly advertise such records only on the link(s) on which they are
-	    reachable. This is optional because it requires the Advertising Proxy function to have
-	    enough information to make such a determination, which may not always be the case.
-	  </t>
-	  <t>
-	    Where such determinations are possible, the Advertising Proxy SHOULD NOT advertise an
-	    IPv4 or IPv6 link-local address, or any other media-specific link-scoped address, on any
-	    link other than the link on which the SRP Update was received.
-	  </t>
-	  <t>
-	    However, when a determination as to the link on which a particular IP address record is
-	    valid isn't being made, either because this capability isn't implemented by the
-	    Advertising Proxy, or because that information isn't available, the Advertising Proxy
-	    MUST advertise locally-scoped IP address records.
-	  </t>
-	</section>
-	<section>
-	  <name>Conflicts and Stale Data</name>
-	  <t>
-	    There are two issues that can come up when advertising a DNS zone using mDNS that
-	    appear quite similar on the surface, but are actually fairly different. These both
-	    show up as a "conflict," but in fact only one is actually a conflict.
-	  </t>
-	  <t>
-	    A conflict occurs when two different devices assert authority for the same
-	    name. However, stale data can also appear as a conflict, even though there is only one
-	    device asserting authority for the data.  The problem of stale data occurs when there is
-	    more than one Advertising Proxy replicating and advertising the same dataset.
-	  </t>
-	  <t>
-	    For actual conflicts, there is no need to do anything special. Either the Advertising Proxy
-	    will prevail, or the other mDNS service will. If the Advertising Proxy does not prevail,
-	    it can attempt again to advertise the record after some reasonable time interval has passed.
-	    This could either be the next time the record in question is updated (e.g. because of an
-	    SRP Update) or a fixed time interval.
-	  </t>
-	  <t>
-	    mDNS specifies that conflicts should be resolved by renaming. Instead of continuing to
-	    try to claim the name that is in conflict, the Advertising Proxy MAY rename following the
-	    mDNS renaming method. In this case, the mapping between the new name and the name as it
-	    appears in the dataset must be maintained until such time as the conflict no longer
-	    exists. So this approach requires maintaining some state.
-	  </t>
-	  <t>
-	    If the Advertising Proxy renames owner names into a subdomain of '.local.' rather than into
-	    '.local.', then actual conflicts should never occur, since what is being proxied is a single
-	    dataset. So when we encounter an apparent conflict using these models, it can't be an actual
-	    conflict, but rather stale data, and then the question is simply what to do next.
-	  </t>
-	  <t>
-	    It should be the case in such situations that the problem will correct itself over time.
-	    Some Advertising Proxy will win the apparent conflict, and so some version of the data
-	    will be findable. However, following the usual mDNS conflict detection strategy, it is
-	    most likely that a conflict will be resolved in favor of the stale data, not the new data.
-	    This can result in persistent stale data being advertised by the Advertising Proxy.
-	  </t>
-	  <t>
-	    To prevent stale data winning over updated data, an Advertising Proxy MUST support the
-	    Time Since Registered (TSR) EDNS0 option <xref target="I-D.ietf-dnssd-tsr"/>.
-	  </t>
-	</section>
-	<section numbered="true">
-          <name>No Text-Encoding Translations</name>
+  </section>
+<section>
+  <name>Handling of IP address records that are not global in scope</name>
+  <t>
+    In some cases, an SRP requester may register one or more IP address records for
+    addresses that aren't valid or reachable on some link on which the Advertising Proxy
+    could advertise them. The Advertising Proxy function MAY filter out such address records
+    entirely, or MAY explicitly advertise such records only on the link(s) on which they are
+    reachable. This is optional because it requires the Advertising Proxy function to have
+    enough information to make such a determination, which may not always be the case.
+  </t>
+  <t>
+    Where such determinations are possible, the Advertising Proxy SHOULD NOT advertise an
+    IPv4 or IPv6 link-local address, or any other media-specific link-scoped address, on any
+    link other than the link on which the SRP Update was received.
+  </t>
+  <t>
+    However, when a determination as to the link on which a particular IP address record is
+    valid isn't being made, either because this capability isn't implemented by the
+    Advertising Proxy, or because that information isn't available, the Advertising Proxy
+    MUST advertise locally-scoped IP address records.
+  </t>
+</section>
+<section>
+  <name>Conflicts and Stale Data</name>
+  <t>
+    There are two issues that can come up when advertising a DNS zone using mDNS that
+    appear quite similar on the surface, but are actually fairly different. These both
+    show up as a "conflict," but in fact only one is actually a conflict.
+  </t>
+  <t>
+    A conflict occurs when two different devices assert authority for the same
+    name. However, stale data can also appear as a conflict, even though there is only one
+    device asserting authority for the data.  The problem of stale data occurs when there is
+    more than one Advertising Proxy replicating and advertising the same dataset.
+  </t>
+  <t>
+    For actual conflicts, there is no need to do anything special. Either the Advertising Proxy
+    will prevail, or the other mDNS service will. If the Advertising Proxy does not prevail,
+    it can attempt again to advertise the record after some reasonable time interval has passed.
+    This could either be the next time the record in question is updated (e.g. because of an
+    SRP Update) or a fixed time interval.
+  </t>
+  <t>
+    mDNS specifies that conflicts should be resolved by renaming. Instead of continuing to
+    try to claim the name that is in conflict, the Advertising Proxy MAY rename following the
+    mDNS renaming method. In this case, the mapping between the new name and the name as it
+    appears in the dataset must be maintained until such time as the conflict no longer
+    exists. So this approach requires maintaining some state.
+  </t>
+  <t>
+    If the Advertising Proxy renames owner names into a subdomain of '.local.' rather than into
+    '.local.', then actual conflicts should never occur, since what is being proxied is a single
+    dataset. So when we encounter an apparent conflict using these models, it can't be an actual
+    conflict, but rather stale data, and then the question is simply what to do next.
+  </t>
+  <t>
+    It should be the case in such situations that the problem will correct itself over time.
+    Some Advertising Proxy will win the apparent conflict, and so some version of the data
+    will be findable. However, following the usual mDNS conflict detection strategy, it is
+    most likely that a conflict will be resolved in favor of the stale data, not the new data.
+    This can result in persistent stale data being advertised by the Advertising Proxy.
+  </t>
+  <t>
+    To prevent stale data winning over updated data, an Advertising Proxy MUST support the
+    Time Since Registered (TSR) EDNS0 option <xref target="I-D.ietf-dnssd-tsr"/>.
+  </t>
+</section>
+<section numbered="true">
+      <name>No Text-Encoding Translations</name>
 
-          <t>
-            Similar to a Discovery Proxy
-            <xref target="RFC8766"/>,
-            an Advertising Proxy does no translation between
-            text encodings
-            <xref target="RFC6055"/>.
-            Specifically, an Advertising Proxy does no
-            translation between Punycode encoding
-            <xref target="RFC3492"/>
-            and UTF-8 encoding
-            <xref target="RFC3629"/>,
-            either in the owner name of DNS records or
-            anywhere in the RDATA of DNS records
-            (such as the RDATA of PTR records, SRV records, NS
-            records, or other record types like TXT, where it is
-            ambiguous whether the RDATA may contain DNS names).
-            All bytes are treated as-is with no attempt at
-            text-encoding translation.
-            A server implementing DNS-based Service Discovery
-            <xref target="RFC6763"/>
-            will use UTF-8 encoding for its unicast DNS-based
-            record registrations, which the Advertising Proxy
-            passes through without any text-encoding
-            translation to the Multicast DNS subsystem.
-            Queries from peers on the configured multicast-capable
-            interface are answered directly from the advertised data
-            without any text-encoding translation.
-          </t>
-	</section>
+      <t>
+        Similar to a Discovery Proxy
+        <xref target="RFC8766"/>,
+        an Advertising Proxy does no translation between
+        text encodings
+        <xref target="RFC6055"/>.
+        Specifically, an Advertising Proxy does no
+        translation between Punycode encoding
+        <xref target="RFC3492"/>
+        and UTF-8 encoding
+        <xref target="RFC3629"/>,
+        either in the owner name of DNS records or
+        anywhere in the RDATA of DNS records
+        (such as the RDATA of PTR records, SRV records, NS
+        records, or other record types like TXT, where it is
+        ambiguous whether the RDATA may contain DNS names).
+        All bytes are treated as-is with no attempt at
+        text-encoding translation.
+        A server implementing DNS-based Service Discovery
+        <xref target="RFC6763"/>
+        will use UTF-8 encoding for its unicast DNS-based
+        record registrations, which the Advertising Proxy
+        passes through without any text-encoding
+        translation to the Multicast DNS subsystem.
+        Queries from peers on the configured multicast-capable
+        interface are answered directly from the advertised data
+        without any text-encoding translation.
+      </t>
+</section>
 
-	<section numbered="true">
-          <name>No Support for Reconfirm</name>
-          <t>
-            For network efficiency,
-            Multicast DNS
-            <xref target="RFC6762"/>
-            uses fairly long record lifetimes
-            (typically 75 minutes).
-            When a client is unable to reach
-            a service that it discovered,
-            Multicast DNS provides a "reconfirm"
-            mechanism that enables the client
-            to signal to the Multicast DNS subsystem
-            that its cached data may be suspect,
-            which causes the Multicast DNS subsystem
-            to reissue queries, and remove the stale
-            records if the queries are not answered.
-          </t>
-          <t>
-            Similarly, when using unicast service discovery
-            with a Discovery Proxy <xref target="RFC8766"/>,
-            the DNS Push Notifications <xref target="RFC8765"/> protocol
-            provides the RECONFIRM mechanism to signal that
-            the Discovery Proxy should perform a local
-            Multicast DNS reconfirm operation to
-            re-verify the validity of the records.
-          </t>
-          <t>
-            When an Advertising Proxy is used,
-            to support legacy clients that only implement Multicast DNS,
-            reconfirm operations have no effect.
+<section numbered="true">
+      <name>No Support for Reconfirm</name>
+      <t>
+        For network efficiency,
+        Multicast DNS
+        <xref target="RFC6762"/>
+        uses fairly long record lifetimes
+        (typically 75 minutes).
+        When a client is unable to reach
+        a service that it discovered,
+        Multicast DNS provides a "reconfirm"
+        mechanism that enables the client
+        to signal to the Multicast DNS subsystem
+        that its cached data may be suspect,
+        which causes the Multicast DNS subsystem
+        to reissue queries, and remove the stale
+        records if the queries are not answered.
+      </t>
+      <t>
+        Similarly, when using unicast service discovery
+        with a Discovery Proxy <xref target="RFC8766"/>,
+        the DNS Push Notifications <xref target="RFC8765"/> protocol
+        provides the RECONFIRM mechanism to signal that
+        the Discovery Proxy should perform a local
+        Multicast DNS reconfirm operation to
+        re-verify the validity of the records.
+      </t>
+      <t>
+        When an Advertising Proxy is used,
+        to support legacy clients that only implement Multicast DNS,
+        reconfirm operations have no effect.
 
-            If a device uses unicast Service Registration Protocol
-            <xref target="RFC9665"/>
-            to register its services
-            with a service registry with both SRP registrar and Advertising Proxy functions,
-            and the device then gets disconnected from the network,
-            the Advertising Proxy will continue to advertise
-            those records until the service registrations expire.
+        If a device uses unicast Service Registration Protocol
+        <xref target="RFC9665"/>
+        to register its services
+        with a service registry with both SRP registrar and Advertising Proxy functions,
+        and the device then gets disconnected from the network,
+        the Advertising Proxy will continue to advertise
+        those records until the service registrations expire.
 
-            If a client discovers the service instance using
-            Multicast DNS and is unable to reach it,
-            and uses a Multicast DNS reconfirm operation to re-verify
-            the validity of the records, then
-            the Advertising Proxy will continue
-            to answer on behalf of the departed device
-            until the service registrations expire.
+        If a client discovers the service instance using
+        Multicast DNS and is unable to reach it,
+        and uses a Multicast DNS reconfirm operation to re-verify
+        the validity of the records, then
+        the Advertising Proxy will continue
+        to answer on behalf of the departed device
+        until the service registrations expire.
 
-            The Advertising Proxy has no reliable way
-            to determine whether the additional Multicast DNS
-            queries are due to a reconfirm operation,
-            or due to other routine causes,
-            like a client being rebooted,
-            or a client disconnecting and then reconnecting to the network.
+        The Advertising Proxy has no reliable way
+        to determine whether the additional Multicast DNS
+        queries are due to a reconfirm operation,
+        or due to other routine causes,
+        like a client being rebooted,
+        or a client disconnecting and then reconnecting to the network.
 
-            The service registry has no reliable automatic way
-            to determine whether a device that
-            registered records has meanwhile failed or disconnected from the network.
-            Particularly with services provided by sleepy battery-powered devices,
-            the service registry does not know what active duty cycle
-            any given service is expected to provide.
-          </t>
-          <t>
-            Consequently, reconfirm operations are not supported
-            with an Advertising Proxy using multicast DNS.
-            In cases where use of the reconfirm mechanism
-            is important, clients should be upgraded to use the unicast
-            DNS Push Notifications <xref target="RFC8765"/> protocol's
-            RECONFIRM message.
-            This RECONFIRM message provides an unambiguous signal
-            to the service registry that it may be retaining stale records.
-            (A future update to the Service Registration Protocol
-            <xref target="RFC9665"/>
-            could consider ways that this unambiguous signal
-            can be used to trigger expedited removal of stale data.)
-          </t>
-	</section>
-      </section>
+        The service registry has no reliable automatic way
+        to determine whether a device that
+        registered records has meanwhile failed or disconnected from the network.
+        Particularly with services provided by sleepy battery-powered devices,
+        the service registry does not know what active duty cycle
+        any given service is expected to provide.
+      </t>
+      <t>
+        Consequently, reconfirm operations are not supported
+        with an Advertising Proxy using multicast DNS.
+        In cases where use of the reconfirm mechanism
+        is important, clients should be upgraded to use the unicast
+        DNS Push Notifications <xref target="RFC8765"/> protocol's
+        RECONFIRM message.
+        This RECONFIRM message provides an unambiguous signal
+        to the service registry that it may be retaining stale records.
+        (A future update to the Service Registration Protocol
+        <xref target="RFC9665"/>
+        could consider ways that this unambiguous signal
+        can be used to trigger expedited removal of stale data.)
+      </t>
+</section>
     </section>
     <section numbered="true">
       <name>Security Considerations</name>
