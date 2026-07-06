@@ -388,7 +388,7 @@
     For actual conflicts, there is no need to do anything special. Either the Advertising Proxy
     will prevail, or the other mDNS service will. If the Advertising Proxy does not prevail,
     it can attempt again to advertise the record after some reasonable time interval has passed.
-    This could either be the next time the record in question is updated (e.g. because of an
+    This could either be the next time the record in question is updated (e.g., because of an
     SRP Update) or a fixed time interval.
   </t>
   <t>
