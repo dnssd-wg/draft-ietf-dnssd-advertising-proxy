@@ -7,29 +7,30 @@
 <title>Advertising Proxy for DNS-SD Service Registration Protocol</title>
 <meta content="Stuart Cheshire" name="author">
 <meta content="Ted Lemon" name="author">
+<meta content="Esko Dijk" name="author">
 <meta content="
        An Advertising Proxy advertises the contents of a DNS zone, for example maintained
-      using the DNS-SD Service Registration Protocol (SRP), using multicast DNS. This allows
-      legacy clients to discover services registered with SRP using multicast DNS. 
+      using the DNS-SD Service Registration Protocol (SRP), using Multicast DNS. This allows
+      legacy clients to discover services registered with SRP using Multicast DNS. 
     " name="description">
-<meta content="xml2rfc 3.26.0" name="generator">
+<meta content="xml2rfc 3.34.0" name="generator">
 <meta content="Multicast DNS" name="keyword">
 <meta content="DNS-Based Service Discovery" name="keyword">
 <meta content="draft-ietf-dnssd-advertising-proxy-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.26.0
-    Python 3.12.8
-    ConfigArgParse 1.7
+  xml2rfc 3.34.0
+    Python 3.14.5
+    ConfigArgParse 1.7.5
     google-i18n-address 3.1.1
-    intervaltree 3.1.0
-    Jinja2 3.1.5
-    lxml 5.3.0
-    platformdirs 4.3.6
+    intervaltree 3.2.1
+    Jinja2 3.1.6
+    lxml 6.1.1
+    natsort 8.4.0
+    platformdirs 4.10.0
     pycountry 24.6.1
-    PyYAML 6.0.2
-    requests 2.32.3
-    setuptools 70.3.0
-    wcwidth 0.2.13
+    PyYAML 6.0.3
+    requests 2.33.1
+    wcwidth 0.8.2
 -->
 <link href="draft-ietf-dnssd-advertising-proxy.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
@@ -170,7 +171,7 @@
   font-weight: 400;
   font-display: swap;
   src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin-ext.woff2') format('woff2');
-  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 @font-face {
   font-family: 'Oxygen Mono';
@@ -178,7 +179,8 @@
   font-weight: 400;
   font-display: swap;
   src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
 }
 
 @font-face {
@@ -295,16 +297,19 @@ h1, h2, h3, h4, h5, h6 {
   font-size-adjust: 0.5;
   color: var(--title-color);
 }
-h1#title {
-  font-size: 32px;
-  line-height: 40px;
-  clear: both;
-}
-h1#title, h1#rfcnum {
-  margin: 1.5em 0 0.2em;
-}
-h1#rfcnum + h1#title {
-  margin: 0.2em 0;
+h1 {
+  &#title {
+    font-size: 32px;
+    line-height: 40px;
+    clear: both;
+    margin: 1.5em 0 0.2em;
+  }
+  &#rfcnum {
+    margin: 1.5em 0 0.2em;
+    & + h1#title {
+      margin: 0.2em 0;
+    }
+  }
 }
 
 h1, h2, h3 {
@@ -324,10 +329,10 @@ h4, h5, h6 {
 #abstract+p {
   font-size: 18px;
   line-height: 24px;
-}
-#abstract+p code, #abstract+p samp, #abstract+p tt {
-  font-size: 16px;
-  line-height: 0;
+  & code, & samp, & tt {
+    font-size: 16px;
+    line-height: 0;
+  }
 }
 
 p {
@@ -338,59 +343,59 @@ p {
 div {
   margin: 0;
 }
-.alignRight.art-text {
-  background-color: var(--highlight-color);
-  border: 1px solid var(--line-color);
-  border-radius: 3px;
-  padding: 0.5em 1em 0;
-  margin-bottom: 0.5em;
-}
-.alignRight.art-text pre {
-  padding: 0;
-  width: auto;
-}
 .alignRight {
   margin: 1em 0;
-}
-.alignRight > *:first-child {
-  border: none;
-  margin: 0;
-  float: right;
-  clear: both;
-}
-.alignRight > *:nth-child(2) {
-  clear: both;
-  display: block;
-  border: none;
+  &.art-text {
+    background-color: var(--highlight-color);
+    border: 1px solid var(--line-color);
+    border-radius: 3px;
+    padding: 0.5em 1em 0;
+    margin-bottom: 0.5em;
+    & pre {
+      padding: 0;
+      width: auto;
+    }
+  }
+  & > *:first-child {
+    border: none;
+    margin: 0;
+    float: right;
+    clear: both;
+  }
+  & > *:nth-child(2) {
+    clear: both;
+    display: block;
+    border: none;
+  }
 }
 svg {
   display: block;
-}
-/* font-family isn't space-separated, but =~ will have to do */
-svg[font-family~="monospace" i], svg [font-family~="monospace" i] {
-  font-family: var(--font-mono);
-}
-.alignCenter.art-text {
-  background-color: var(--highlight-color);
-  border: 1px solid var(--line-color);
-  border-radius: 3px;
-  padding: 0.5em 1em 0;
-  margin-bottom: 0.5em;
-}
-.alignCenter.art-text pre {
-  padding: 0;
-  width: auto;
+  /* font-family isn't space-separated, but =~ will have to do */
+  &[font-family~="monospace" i], & [font-family~="monospace" i] {
+    font-family: var(--font-mono);
+  }
 }
 .alignCenter {
   margin: 1em 0;
-}
-.alignCenter > *:first-child {
-  border: none;
-  /* this isn't optimal, but it's an existence proof.  PrinceXML doesn't
-     support flexbox yet.
-  */
-  display: table;
-  margin: 0 auto;
+  &.art-text {
+    background-color: var(--highlight-color);
+    border: 1px solid var(--line-color);
+    border-radius: 3px;
+    padding: 0.5em 1em 0;
+    margin-bottom: 0.5em;
+    & pre {
+      padding: 0;
+      width: auto;
+    }
+  }
+  & > *:first-child {
+    border: none;
+    /* this isn't optimal, but it's an existence proof.  PrinceXML doesn't
+       support flexbox yet.
+    */
+    display: table;
+    margin: 0 auto;
+  }
 }
 
 /* lists */
@@ -428,26 +433,25 @@ dl {
     --indent: 5ch;
     & > dt {
       min-width: calc(var(--indent) - 2ch);
+      float: none;
     }
-  }
-  &.olPercent > dt {
-    float: none;
   }
 
   dl > dd > & {
     margin-top: 0.5em;
     margin-bottom: 0;
   }
-}
-dl > dt {
-  float: left;
-  margin-right: 2ch;
-  min-width: 8ch;
-}
-dl > dd {
-  margin-bottom: .8em;
-  margin-left: var(--indent) !important; /* stupid element overrides */
-  min-height: 2ex;
+
+  &:not(.dlNewline) > dt {
+    float: left;
+    margin-right: 2ch;
+    min-width: 8ch;
+  }
+  & > dd {
+    margin-bottom: .8em;
+    margin-left: var(--indent) !important; /* stupid element overrides */
+    min-height: 2ex;
+  }
 }
 :is(dl.compact, .dlCompact) > dd {
   margin-bottom: 0;
@@ -463,20 +467,22 @@ dl > dd {
 }
 
 /* links */
-a, a[href].selfRef:hover {
+a {
   text-decoration: none;
+  &[href] {
+    color: var(--link-color);
+    &:hover { text-decoration: underline; }
+    &.selfRef {
+      color: var(--text-color);
+      &:hover {
+        text-decoration: none;
+        background-color: var(--highlight-color);
+      }
+    }
+  }
 }
-a[href] {
-  color: var(--link-color);
-}
-a[href].selfRef, .iref + a[href].internal {
+.iref + a[href].internal {
   color: var(--text-color);
-}
-a[href]:hover {
-  text-decoration: underline;
-}
-a[href].selfRef:hover {
-  background-color: var(--highlight-color);
 }
 a.xref:is(.cite, .auto), :is(#status-of-memo, #copyright) a {
   white-space: nowrap;
@@ -512,9 +518,9 @@ img {
 figure {
   margin: 0.5em 0;
   padding: 0;
-}
-figure blockquote {
-  margin: 0.8em 0.4em 0.4em;
+  & blockquote {
+    margin: 0.8em 0.4em 0.4em;
+  }
 }
 figcaption, caption {
   font-style: italic;
@@ -524,17 +530,19 @@ figcaption, caption {
 }
 @media screen {
   /* Auto-collapse boilerplate. */
-  :is(#status-of-memo, #copyright) p {
-    margin: -2px 0;
-    max-height: 0;
-    transition: max-height 2s ease, margin 0.5s ease 0.5s;
-    overflow: hidden;
-  }
-  :is(#status-of-memo, #copyright):hover p,
-  :is(#status-of-memo, #copyright) h2:target ~ p {
-    margin: 0.5em 0;
-    max-height: 500px;
-    overflow: auto;
+  :is(#status-of-memo, #copyright) {
+    & p {
+      margin: -2px 0;
+      max-height: 0;
+      transition: max-height 2s ease, margin 0.5s ease 0.5s;
+      overflow: hidden;
+    }
+    &:hover p,
+    & h2:target ~ p {
+      margin: 0.5em 0;
+      max-height: 500px;
+      overflow: auto;
+    }
   }
   pre, svg {
     display: inline-block;
@@ -570,6 +578,7 @@ aside, blockquote {
 }
 blockquote {
   margin: 1em 0;
+  border-left: 2px var(--pilcrow-strong) solid;
 }
 cite {
   display: block;
@@ -583,25 +592,17 @@ table {
   max-width: 100%;
   margin: 0 0 1em;
   border-collapse: collapse;
-}
-table.right {
-  margin-left: auto;
-}
-table.center {
-  margin-left: auto;
-  margin-right: auto;
-}
-table.left {
-  margin-right: auto;
-}
-table .text-left {
-  text-align: left;
-}
-table .text-center {
-  text-align: center;
-}
-table .text-right {
-  text-align: right;
+  &.right { margin-left: auto; }
+  &.center { margin-left: auto; margin-right: auto; }
+  &.left { margin-right: auto; }
+  & .text-left { text-align: left; }
+  & .text-center { text-align: center; }
+  & .text-right { text-align: right; }
+  & caption {
+    margin: 0;
+    padding: 3px 0 3px 1em;
+  }
+  & p { margin: 0; }
 }
 
 thead, tbody {
@@ -621,13 +622,6 @@ th {
 :is(tr:nth-child(2n+1), thead+tbody > tr:nth-child(2n)) > td {
   background-color: var(--highlight-color);
 }
-table caption {
-  margin: 0;
-  padding: 3px 0 3px 1em;
-}
-table p {
-  margin: 0;
-}
 
 /* pilcrow */
 a.pilcrow {
@@ -638,18 +632,16 @@ a.pilcrow {
     color: var(--pilcrow-weak);
     &:hover { text-decoration: none; }
   }
-}
-@media not print {
-  :hover > a.pilcrow {
-    opacity: 1;
+  @media not print {
+    :hover > &, &:focus {
+      opacity: 1;
+    }
+    &[href]:hover {
+      color: var(--pilcrow-strong);
+      background-color: transparent;
+    }
   }
-  a.pilcrow[href]:hover {
-    color: var(--pilcrow-strong);
-    background-color: transparent;
-  }
-}
-@media print {
-  a.pilcrow {
+  @media print {
     display: none;
   }
 }
@@ -708,9 +700,9 @@ sub, sup {
   font-size: 0.9em;
   font-style: italic;
   margin-top: 2em;
-}
-.docInfo .prepared {
-  float: right;
+  & .prepared {
+    float: right;
+  }
 }
 
 /* table of contents */
@@ -800,23 +792,27 @@ hr.addr {
   max-width: calc(100% - 16px);
 }
 @media (min-width: 500px) {
-  #authors-addresses > section {
-    column-count: 2;
-    column-gap: 20px;
-  }
-  #authors-addresses > section > h2 {
-    column-span: all;
-  }
-  /* hack for break-inside: avoid-column */
-  #authors-addresses address {
-    display: inline-block;
-    break-inside: avoid-column;
+  #authors-addresses {
+    & > section {
+      column-count: 2;
+      column-gap: 20px;
+    }
+    & > section > h2 {
+      column-span: all;
+    }
+    /* hack for break-inside: avoid-column */
+    & address {
+      display: inline-block;
+      break-inside: avoid-column;
+    }
   }
 }
 
 /* Comments */
-.rfcEditorRemove p:first-of-type {
-  font-style: italic;
+.rfcEditorRemove {
+  & p:first-of-type {
+    font-style: italic;
+  }
 }
 .cref {
   background-color: rgba(249, 232, 105, 0.3);
@@ -827,19 +823,21 @@ hr.addr {
 }
 
 @media screen {
-  #toc nav {
-    font-family: var(--font-title);
-    font-weight: 360;
-    & > ul { margin-bottom: 2em; }
-    & ul {
-      margin: 0 0 0 4px;
-      & :is(p, li) {
-        margin: 2px 0;
+  #toc {
+    & nav {
+      font-family: var(--font-title);
+      font-weight: 360;
+      & > ul { margin-bottom: 2em; }
+      & ul {
+        margin: 0 0 0 4px;
+        & :is(p, li) {
+          margin: 2px 0;
+        }
       }
     }
-  }
-  #toc a.toplink {
-    float: right;
+    & a.toplink {
+      float: right;
+    }
   }
 }
 @media not screen {
@@ -860,54 +858,54 @@ hr.addr {
     margin: 0;
     border-bottom: 1px solid #ccc;
     opacity: 0.6;
-  }
-  #toc h2 {
-    margin: 0;
-    padding: 2px 0 2px 6px;
-    padding-right: 1em;
-    font-size: 18px;
-    line-height: 24px;
-    min-width: 190px;
-    text-align: right;
-    background-color: #444;
-    color: white;
-    cursor: pointer;
-    &::before { /* css hamburger */
-      float: right;
-      position: relative;
-      width: 1em;
-      height: 1px;
-      left: -164px;
-      margin: 8px 0 0 0;
-      background: white none repeat scroll 0 0;
-      box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
-      content: "";
+    & h2 {
+      margin: 0;
+      padding: 2px 0 2px 6px;
+      padding-right: 1em;
+      font-size: 18px;
+      line-height: 24px;
+      min-width: 190px;
+      text-align: right;
+      background-color: #444;
+      color: white;
+      cursor: pointer;
+      &::before { /* css hamburger */
+        float: right;
+        position: relative;
+        width: 1em;
+        height: 1px;
+        left: -164px;
+        margin: 8px 0 0 0;
+        background: white none repeat scroll 0 0;
+        box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
+        content: "";
+      }
     }
-  }
-  #toc nav {
-    display: none;
-    background-color: var(--background-color);
-    padding: 0.5em 1em 1em;
-    overflow: auto;
-    overscroll-behavior: contain;
-    height: calc(100vh - 48px);
-    border-left: 1px solid #ddd;
-  }
-  #toc.active {
-    opacity: 1;
-    & nav { display: block; }
-  }
-  /* Make the collapsed ToC header render white on gray also when it's a link */
-  #toc h2 a,
-  #toc h2 a:is(:link, :focus, :hover),
-  #toc a.toplink,
-  #toc a.toplink:hover {
-    color: white;
-    background-color: #444;
-    text-decoration: none;
-  }
-  #toc a.toplink {
-    margin: 2px 0.5em 0;
+    & nav {
+      display: none;
+      background-color: var(--background-color);
+      padding: 0.5em 1em 1em;
+      overflow: auto;
+      overscroll-behavior: contain;
+      height: calc(100vh - 48px);
+      border-left: 1px solid #ddd;
+    }
+    &.active {
+      opacity: 1;
+      & nav { display: block; }
+    }
+    /* Make the collapsed ToC header render white on gray also when it's a link */
+    & h2 a,
+    & h2 a:is(:link, :focus, :hover),
+    & a.toplink,
+    & a.toplink:hover {
+      color: white;
+      background-color: #444;
+      text-decoration: none;
+    }
+    & a.toplink {
+      margin: 2px 0.5em 0;
+    }
   }
 }
 
@@ -926,26 +924,26 @@ hr.addr {
     margin: 0;
     padding: 0;
     z-index: 1;
-  }
-  #toc h2 {
-    margin: 0;
-    padding: 0.25em 1em 1em 0;
-  }
-  #toc nav {
-    display: block;
-    height: calc(90vh - 84px);
-    bottom: 0;
-    padding: 0.5em 0 2em;
-    overflow: auto;
-    overscroll-behavior: contain;
-    scrollbar-width: thin;
+    & h2 {
+      margin: 0;
+      padding: 0.25em 1em 1em 0;
+    }
+    & nav {
+      display: block;
+      height: calc(90vh - 84px);
+      bottom: 0;
+      padding: 0.5em 0 2em;
+      overflow: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+    }
+    & a.toplink {
+      margin: 8px 0.5em 0;
+    }
   }
   img { /* future proofing */
     max-width: 100%;
     height: auto;
-  }
-  #toc a.toplink {
-    margin: 8px 0.5em 0;
   }
 }
 
@@ -961,12 +959,13 @@ hr.addr {
   #n-copyright-notice {
     border-bottom: none;
   }
-  #toc, #n-introduction {
-    page-break-before: always;
-  }
   #toc {
+    page-break-before: always;
     border-top: none;
     padding-top: 0;
+  }
+  #n-introduction {
+    page-break-before: always;
   }
   figure, pre, .vcard {
     page-break-inside: avoid;
@@ -1028,17 +1027,19 @@ hr.addr {
 }
 
 /* SVG Trick: a prefix match works because only black and white are allowed */
-svg :is([stroke="black"], [stroke^="#000"]) {
-  stroke: var(--text-color);
-}
-svg :is([stroke="white"], [stroke^="#fff"]) {
-  stroke: var(--background-color);
-}
-svg :is([fill="black"], [fill^="#000"], :not([fill])) {
-  fill: var(--text-color);
-}
-svg :is([fill="white"], [fill^="#fff"]) {
-  fill: var(--background-color);
+svg {
+  & :is([stroke="black"], [stroke^="#000"]) {
+    stroke: var(--text-color);
+  }
+  & :is([stroke="white"], [stroke^="#fff"]) {
+    stroke: var(--background-color);
+  }
+  & :is([fill="black"], [fill^="#000"], :not([fill])) {
+    fill: var(--text-color);
+  }
+  & :is([fill="white"], [fill^="#fff"]) {
+    fill: var(--background-color);
+  }
 }
 </style>
 
@@ -1048,11 +1049,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">Advertising Proxy for DNS-SD SRP</td>
-<td class="right">March 2024</td>
+<td class="right">July 2026</td>
 </tr></thead>
 <tfoot><tr>
-<td class="left">Cheshire &amp; Lemon</td>
-<td class="center">Expires 5 September 2024</td>
+<td class="left">Cheshire, et al.</td>
+<td class="center">Expires 7 January 2027</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1063,12 +1064,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="workgroup">DNSSD</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2024-03-04" class="published">4 March 2024</time>
+<time datetime="2026-07-06" class="published">6 July 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2024-09-05">5 September 2024</time></dd>
+<dd class="expires"><time datetime="2027-01-07">7 January 2027</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1079,6 +1080,10 @@ svg :is([fill="white"], [fill^="#fff"]) {
       <div class="author-name">T. Lemon</div>
 <div class="org">Apple Inc.</div>
 </div>
+<div class="author">
+      <div class="author-name">E. Dijk</div>
+<div class="org">IoTconsultancy.nl</div>
+</div>
 </dd>
 </dl>
 </div>
@@ -1086,8 +1091,8 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
 <p id="section-abstract-1">An Advertising Proxy advertises the contents of a DNS zone, for example maintained
-      using the DNS-SD Service Registration Protocol (SRP), using multicast DNS. This allows
-      legacy clients to discover services registered with SRP using multicast DNS.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+      using the DNS-SD Service Registration Protocol (SRP), using Multicast DNS. This allows
+      legacy clients to discover services registered with SRP using Multicast DNS.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 </section>
 <section class="note rfcEditorRemove" id="section-note.1">
       <h2 id="name-about-this-document">
@@ -1124,7 +1129,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 5 September 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 7 January 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1133,7 +1138,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <a href="#name-copyright-notice" class="section-name selfRef">Copyright Notice</a>
         </h2>
 <p id="section-boilerplate.2-1">
-            Copyright (c) 2024 IETF Trust and the persons identified as the
+            Copyright (c) 2026 IETF Trust and the persons identified as the
             document authors. All rights reserved.<a href="#section-boilerplate.2-1" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.2-2">
             This document is subject to BCP 78 and the IETF Trust's Legal
@@ -1173,19 +1178,19 @@ svg :is([fill="white"], [fill^="#fff"]) {
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.1.2.2">
                     <p id="section-toc.1-1.2.2.1.2.2.1"><a href="#section-2.1.2" class="auto internal xref">2.1.2</a>.  <a href="#name-how-to-rewrite-names" class="internal xref">How to rewrite names</a></p>
 </li>
-                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.1.2.3">
-                    <p id="section-toc.1-1.2.2.1.2.3.1"><a href="#section-2.1.3" class="auto internal xref">2.1.3</a>.  <a href="#name-handling-of-address-records" class="internal xref">Handling of address records that are not global in scope</a></p>
-</li>
-                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.1.2.4">
-                    <p id="section-toc.1-1.2.2.1.2.4.1"><a href="#section-2.1.4" class="auto internal xref">2.1.4</a>.  <a href="#name-conflicts-and-stale-data" class="internal xref">Conflicts and Stale Data</a></p>
-</li>
-                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.1.2.5">
-                    <p id="section-toc.1-1.2.2.1.2.5.1"><a href="#section-2.1.5" class="auto internal xref">2.1.5</a>.  <a href="#name-no-text-encoding-translatio" class="internal xref">No Text-Encoding Translation</a></p>
-</li>
-                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.1.2.6">
-                    <p id="section-toc.1-1.2.2.1.2.6.1"><a href="#section-2.1.6" class="auto internal xref">2.1.6</a>.  <a href="#name-no-support-for-reconfirm" class="internal xref">No Support for Reconfirm</a></p>
-</li>
                 </ul>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.2">
+                <p id="section-toc.1-1.2.2.2.1"><a href="#section-2.2" class="auto internal xref">2.2</a>.  <a href="#name-handling-of-ip-address-reco" class="internal xref">Handling of IP address records that are not global in scope</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.3">
+                <p id="section-toc.1-1.2.2.3.1"><a href="#section-2.3" class="auto internal xref">2.3</a>.  <a href="#name-conflicts-and-stale-data" class="internal xref">Conflicts and Stale Data</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.4">
+                <p id="section-toc.1-1.2.2.4.1"><a href="#section-2.4" class="auto internal xref">2.4</a>.  <a href="#name-no-text-encoding-translatio" class="internal xref">No Text-Encoding Translations</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.5">
+                <p id="section-toc.1-1.2.2.5.1"><a href="#section-2.5" class="auto internal xref">2.5</a>.  <a href="#name-no-support-for-reconfirm" class="internal xref">No Support for Reconfirm</a></p>
 </li>
             </ul>
 </li>
@@ -1218,20 +1223,20 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
       </h2>
 <p id="section-1-1">
- DNS-Based Service Discovery
+ DNS-Based Service Discovery (DNS-SD)
  <span>[<a href="#RFC6763" class="cite xref">RFC6763</a>]</span>
         <span>[<a href="#I-D.cheshire-dnssd-roadmap" class="cite xref">ROADMAP</a>]</span>
  was designed to facilitate Zero Configuration IP Networking
  <span>[<a href="#RFC6760" class="cite xref">RFC6760</a>]</span>
-        <span>[<a href="#ZC" class="cite xref">ZC</a>]</span>.<br>
+        <span>[<a href="#ZC" class="cite xref">ZC</a>]</span>.
 
- When used with Multicast DNS
+ When used with Multicast DNS (mDNS)
  <span>[<a href="#RFC6762" class="cite xref">RFC6762</a>]</span>
  with ".local" domain names
  <span>[<a href="#RFC6761" class="cite xref">RFC6761</a>]</span>
  this works well on a single link (a single broadcast domain).<a href="#section-1-1" class="pilcrow">¶</a></p>
-<p id="section-1-2">However, in some applications, multicast may be a poor choice for advertising. Most
-      obviously, multicast DNS is constrained to a single network link, and for example in the
+<p id="section-1-2">However, in some applications, multicast may be a poor choice for advertising services. Most
+      obviously, Multicast DNS is constrained to a single network link, and for example in the
       case of stub networks <span>[<a href="#I-D.ietf-snac-simple" class="cite xref">STUBNET</a>]</span>, service discovery
       for devices on the stub network by devices on the infrastructure network, or vice versa,
       requires some kind of proxy.<a href="#section-1-2" class="pilcrow">¶</a></p>
@@ -1239,9 +1244,9 @@ svg :is([fill="white"], [fill^="#fff"]) {
       network media, multicast is inefficient and/or unreliable. Also, mDNS-based DNS-SD requires
       that each host providing services receive and process all mDNS service discovery messages,
       whether or not they are relevant to that host (for example, irrelevant service
-      advertisements and queries for services not provided by the host). For power-constrained
+      advertisements and queries for services not provided by the host). For energy-constrained
       hosts, keeping a radio listening all the time for these messages is prohibitively expensive.<a href="#section-1-3" class="pilcrow">¶</a></p>
-<p id="section-1-4">Ideally, in situations where multicast DNS is not the right choice, an obvious
+<p id="section-1-4">Ideally, in situations where Multicast DNS is not the right choice, an obvious
       alternative is to use regular unicast DNS <span>[<a href="#RFC1035" class="cite xref">RFC1035</a>]</span>. Unfortunately, this
       isn't always possible: the DNS protocol relies on a delegation hierarchy, and on
       per-network DNS resolvers.<a href="#section-1-4" class="pilcrow">¶</a></p>
@@ -1253,15 +1258,13 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <p id="section-1-6">This document describes a new type of proxy, an Advertising Proxy, which can be used to
       address some of these issues.  An Advertising Proxy advertises the contents of some DNS
       zone (or zones) <span>[<a href="#RFC1034" class="cite xref">RFC1034</a>]</span> to one or more network links using multicast
-      DNS. This allows the DNS protocol, for example using the Service Registration Protocol
-      registrar function <span>[<a href="#I-D.ietf-dnssd-srp" class="cite xref">SRP</a>]</span>, to be used by servers to
-      advertise their services, while using the permissionless model of multicast DNS to make those
+      DNS. This allows the DNS protocol, for example using the Service Registration Protocol (SRP)
+      registrar function <span>[<a href="#RFC9665" class="cite xref">RFC9665</a>]</span>, to be used by servers to
+      advertise their services, while using the permissionless model of Multicast DNS to make those
       services discoverable to devices on links supported by the Advertising Proxy.<a href="#section-1-6" class="pilcrow">¶</a></p>
-<p id="section-1-7">One way of providing this service discovery functionality is through an Advertising
-      Proxy.  An advertising proxy functions to replicate some or all of the contents of a DNS
-      zone using multicast DNS. This is limited by the fact that the DNS zone is a dataset, and
-      the set of names discoverable in mDNS is constructed cooperatively, so the advertising
-      proxy is not authoritative in the same sense that a DNS server is authoritative for any
+<p id="section-1-7">The operation of an Advertising Proxy is limited by the fact that the DNS zone is a single dataset, while
+      the set of names discoverable with mDNS is constructed cooperatively, so the Advertising Proxy
+      is not authoritative in the same sense that a DNS server is authoritative for any
       particular zone. This means that in some cases a name that is present in the DNS zone may
       conflict with a name already published by some other mDNS responder.<a href="#section-1-7" class="pilcrow">¶</a></p>
 <section id="section-1.1">
@@ -1276,6 +1279,10 @@ svg :is([fill="white"], [fill^="#fff"]) {
           to be interpreted as
           described in BCP 14 <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</span> <span>[<a href="#RFC8174" class="cite xref">RFC8174</a>]</span>
           when, and only when, they appear in all capitals, as shown here.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
+<p id="section-1.1-2">
+          The DNS/mDNS/DNS-SD/SRP terminology from <span>[<a href="#RFC1034" class="cite xref">RFC1034</a>]</span>, <span>[<a href="#RFC2181" class="cite xref">RFC2181</a>]</span>,
+          <span>[<a href="#RFC6762" class="cite xref">RFC6762</a>]</span>, <span>[<a href="#RFC6763" class="cite xref">RFC6763</a>]</span> and <span>[<a href="#RFC9665" class="cite xref">RFC9665</a>]</span> is used in this document.<a href="#section-1.1-2" class="pilcrow">¶</a></p>
+<p id="section-1.1-3">'dataset' is defined in <a href="#sec-dns-dataset" class="auto internal xref">Section 2.1.1</a>.<a href="#section-1.1-3" class="pilcrow">¶</a></p>
 </section>
 </section>
 <section id="section-2">
@@ -1283,34 +1290,34 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <a href="#section-2" class="section-number selfRef">2. </a><a href="#name-advertising-proxy" class="section-name selfRef">Advertising Proxy</a>
       </h2>
 <p id="section-2-1">
- The advertising proxy works by publishing records from a DNS zone using multicast DNS
+ The Advertising Proxy works by publishing records from a DNS zone using Multicast DNS
  <span>[<a href="#RFC6762" class="cite xref">RFC6762</a>]</span>. The set of records published may include every record in the
  DNS zone, or a subset determined either automatically or administratively. When a record
  published in the DNS zone has the same name as a record published by some device that is
- not the advertising proxy, this will produce a conflict, and the advertising proxy must
+ not the Advertising Proxy, this will produce a conflict, and the Advertising Proxy must
  address this conflict.<a href="#section-2-1" class="pilcrow">¶</a></p>
 <p id="section-2-2">
  Although we will in some cases refer to aspects of the mDNS protocol in this document,
- it is worth emphasizing that the typical implementor of an advertising proxy should not
+ it is worth emphasizing that the typical implementer of an Advertising Proxy should not
  expect to have to do their own mDNS implementation: most platforms already provide a
  library that allows records and/or services to be published using mDNS. So our goal in
- discussing mDNS protocol details is to motivate choices that the implementor will make
+ discussing mDNS protocol details is to motivate choices that the implementer will make
  in their use of these libraries.<a href="#section-2-2" class="pilcrow">¶</a></p>
 <p id="section-2-3">
- The simplest implementation of an advertising proxy will simply act on some signal
+ The simplest implementation of an Advertising Proxy will simply act on some signal
  indicating that the DNS zone has been updated. When this signal is received, the
- advertising proxy will terminate whatever mDNS registrations it is currently doing, and
+ Advertising Proxy will terminate whatever mDNS advertisements it is currently doing, and
  then iterate across the set of names in the zone, publishing all of the RRsets on each
  name in the DNS.<a href="#section-2-3" class="pilcrow">¶</a></p>
 <p id="section-2-4">
- Of course, this simple approach to an advertising proxy has some issues. Multicast
+ Of course, this simple approach to an Advertising Proxy has some issues. Multicast
  traffic on some link types (e.g., IEEE 802.11) consumes substantially more airtime than
  unicast traffic, so efforts should be made to minimize such traffic where
  possible. Also, the act of unpublishing an advertised record can be seen by consumers of
  the information in that record as an indication that whatever host or service that
  record represents is no longer present.<a href="#section-2-4" class="pilcrow">¶</a></p>
 <p id="section-2-5">
- For these reasons, it is better if the advertising proxy can notice changes to the DNS
+ For these reasons, it is better if the Advertising Proxy can notice changes to the DNS
  zone, and only remove records from mDNS when they have been removed from the zone. New
  records in the zone will be newly advertised, of course, just as with the previous
  approach.<a href="#section-2-5" class="pilcrow">¶</a></p>
@@ -1326,6 +1333,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
    use DNS rather than mDNS.<a href="#section-2.1-1" class="pilcrow">¶</a></p>
 <p id="section-2.1-2">
    But what does it mean to rewrite a name?<a href="#section-2.1-2" class="pilcrow">¶</a></p>
+<div id="sec-dns-dataset">
 <section id="section-2.1.1">
           <h4 id="name-the-dns-dataset">
 <a href="#section-2.1.1" class="section-number selfRef">2.1.1. </a><a href="#name-the-dns-dataset" class="section-name selfRef">The DNS Dataset</a>
@@ -1348,8 +1356,9 @@ svg :is([fill="white"], [fill^="#fff"]) {
      will likely be '8.7.6.5.4.3.2.1.8.b.d.0.1.0.0.2.ip6.arpa.'. There will most likely
      be 16 more labels below the zone cut that are still part of the zone.<a href="#section-2.1.1-3" class="pilcrow">¶</a></p>
 <p id="section-2.1.1-4">
-     For the DNS Service Discovery use case, this is quite common. A service instance name in mDNS
-     will typically look something like 'hostname._example._udp.&lt;domain&gt;.' A hostname on the
+     For the DNS Service Discovery use case, this pattern — a zone including more than one level —
+        is quite common. A service instance name in mDNS
+     will typically look something like 'servicename._example._udp.&lt;domain&gt;.' A hostname on the
      other hand will look like 'hostname.&lt;domain&gt;.' So we need to distinguish between the
      name of the zone in which a name is advertised, the set of subdomains that actually represent
      additional domains in which names can be advertised, and subdomains that are part of the structure
@@ -1359,54 +1368,55 @@ svg :is([fill="white"], [fill^="#fff"]) {
      term that represents the &lt;domain&gt; part of the names above. We will use the term 'dataset' here,
      since this term is also used in the SRP Replication document <span>[<a href="#I-D.ietf-dnssd-srp-replication" class="cite xref">REPLICATION</a>]</span>.<a href="#section-2.1.1-5" class="pilcrow">¶</a></p>
 <p id="section-2.1.1-6">
-     This means that an advertising proxy acts as a proxy for one or more datasets,
-     rather than one or more zones. Which datasets the advertising proxy advertises with
+     This means that an Advertising Proxy acts as a proxy for one or more datasets,
+     rather than one or more zones. Which datasets the Advertising Proxy advertises with
      mDNS will either be determined automatically, or explicitly configured.  It's
-     entirely possible for the advertising proxy to act as a proxy for 'example.com.' and
+     entirely possible for the Advertising Proxy to act as a proxy for 'example.com.' and
      'foo.example.com.'. Both 'example.com' and 'foo.example.com' are dataset names in this
      example.<a href="#section-2.1.1-6" class="pilcrow">¶</a></p>
 </section>
+</div>
 <section id="section-2.1.2">
           <h4 id="name-how-to-rewrite-names">
 <a href="#section-2.1.2" class="section-number selfRef">2.1.2. </a><a href="#name-how-to-rewrite-names" class="section-name selfRef">How to rewrite names</a>
           </h4>
 <p id="section-2.1.2-1">
-     Before advertising a record, the Advertising Proxy MUST rewrite the record. This means that
-     both the owner name of the record and any names that appear as part of the record must be
-     rewritten if they are subdomains of the domain name of the DNS dataset. Of course the owner
-     name will always be a subdomain of the DNS dataset name, but this won't always be true for
-     the content of the resource record.<a href="#section-2.1.2-1" class="pilcrow">¶</a></p>
+     Before advertising a DNS record, the Advertising Proxy MUST rewrite the record. This means that
+     both the owner name of the record and any domain names embedded in the record's RDATA must be
+     rewritten if they are subdomains of the domain name of the dataset. Of course the owner
+     name will always be a subdomain of the dataset name, but this won't always be true for
+     names within the RDATA (if any).<a href="#section-2.1.2-1" class="pilcrow">¶</a></p>
 <p id="section-2.1.2-2">
-     It may also make sense specifically for the PTR record to do a different rewrite for the owner
-     name than for the target of the PTR record, depending on the way that we choose to rewrite
+     It can also make sense specifically for a PTR record to do a different rewrite for the owner
+     name than for the target name of the PTR record, depending on the way that we choose to rewrite
      the names. There are three ways that we can rewrite names, depending on the context:<a href="#section-2.1.2-2" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-2.1.2-3.1">
+<ol start="1" type="1" class="normal type-1" id="section-2.1.2-3">
+     <li id="section-2.1.2-3.1">
               <p id="section-2.1.2-3.1.1">
  Rewrite the dataset name directly to '.local.'. This has the benefit of
- simplicity.  When the data for which the advertising proxy is acting as proxy
- is DNSSD data, for any service that is being advertised, there will be a set
+ simplicity.  When the data for which the Advertising Proxy is acting as proxy
+ is DNS-SD data, for any service that is being advertised, there will be a set
  of PTR records of the form '_example._transport.&lt;domain&gt;.'.  If we
  rewrite &lt;domain&gt; to 'local', then a browse for the service
  '_example._transport' in the local domain will return the services being
  advertised.<a href="#section-2.1.2-3.1.1" class="pilcrow">¶</a></p>
 <p id="section-2.1.2-3.1.2">
- The downside to this approach is that it doesn\'t safely handle name
- conflicts: if there are two datasets for which one or more advertising
- proxies are acting as proxy, and each zone contains a device with the name
+ The downside to this approach is that it doesn't safely handle name
+ conflicts: if there are two datasets for which one or more Advertising
+ Proxies are acting as proxy, and each dataset contains a device with the name
  'george', then this will produce a conflict that can't easily be resolved:
  the name is necessarily unique in each dataset, but when the two datasets
  are both mapped into the '.local.' namespace, they are in conflict. There
  is no way to resolve this.<a href="#section-2.1.2-3.1.2" class="pilcrow">¶</a></p>
 <p id="section-2.1.2-3.1.3">
  Consider an RR that might appear in a dataset with a domain name of 'default.service.arpa.':
- '_example._transport.default.service.arpa. IN PTR hostname._example._transport.default.service.arpa.'.
- This would be rewritten to '_example._transport.local IN PTR hostname._example._transport.local.'.<a href="#section-2.1.2-3.1.3" class="pilcrow">¶</a></p>
+ '_example._transport.default.service.arpa. IN PTR instname._example._transport.default.service.arpa.'.
+ This would be rewritten to '_example._transport.local. IN PTR instname._example._transport.local.'.<a href="#section-2.1.2-3.1.3" class="pilcrow">¶</a></p>
 </li>
-            <li class="normal" id="section-2.1.2-3.2">
+            <li id="section-2.1.2-3.2">
               <p id="section-2.1.2-3.2.1">
  Use a dataset-specific subdomain of '.local.' for each dataset. For example,
- when we are maintaining the dataset using SRP, the SRP dataset will have a
+ when we are maintaining the dataset using SRP, this SRP dataset will have a
  unique identifier, which we can in principle use here. So the domain into
  which we would rewrite the records from this dataset would then take the
  binary dataset ID and probably encode it as hexadecimal, producing
@@ -1414,7 +1424,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <p id="section-2.1.2-3.2.2">
  There is a problem with this approach however: devices browsing for services in
  '.local.' will not know to also browse in this subdomain of '.local.'. In order
- to fix this, the owner name of the PTR records being advertised will have to be
+ to fix this, the owner names of the PTR records being advertised will have to be
  rewritten into the '.local.' domain rather than '&lt;dataset-id&gt;.local.'.
  This is perfectly okay, however, since these PTR records are not required to
  be unique.<a href="#section-2.1.2-3.2.2" class="pilcrow">¶</a></p>
@@ -1422,24 +1432,24 @@ svg :is([fill="white"], [fill^="#fff"]) {
  If the domain being proxied has PTR records that are not being used to
  advertise services, and all PTR records are rewritten into the '.local.'
  domain, this could be a problem. However, since the primary use case for the
- advertising proxy is DNS Service Discovery, and additionally since PTR records
+ Advertising Proxy is DNS Service Discovery, and additionally since PTR records
  generally are only used for service discovery and reverse lookups, it should
- be safe to rewrite PTR records to '.local.' for zones that are not reverse
+ be safe to rewrite PTR records to '.local.' for datasets that are not reverse
  lookup zones. Reverse lookups are already documented in <span>[<a href="#RFC6762" class="cite xref">RFC6762</a>]</span>
- and should not generally require an advertising proxy.<a href="#section-2.1.2-3.2.3" class="pilcrow">¶</a></p>
+ and should not generally require an Advertising Proxy.<a href="#section-2.1.2-3.2.3" class="pilcrow">¶</a></p>
 <p id="section-2.1.2-3.2.4">
  As an example of the PTR rewrite, if the dataset identifier is 5c4d2e9ab4 and
  the dataset domain name is default.service.arpa, the record
- '_example._transport.default.service.arpa. IN PTR hostname._example._transport.default.service.arpa'
+ '_example._transport.default.service.arpa. IN PTR instname._example._transport.default.service.arpa.'
  would be rewritten to
- '_example._transport.local IN PTR hostname._example._transport.5c4d2e9ab4.local.'.<a href="#section-2.1.2-3.2.4" class="pilcrow">¶</a></p>
+ '_example._transport.local. IN PTR instname._example._transport.5c4d2e9ab4.local.'.<a href="#section-2.1.2-3.2.4" class="pilcrow">¶</a></p>
 </li>
-            <li class="normal" id="section-2.1.2-3.3">
+            <li id="section-2.1.2-3.3">
               <p id="section-2.1.2-3.3.1">
- Append '.local.' to the dataset's domain name. For cases where there is no
- SRP replication dataset name, the dataset's domain name can be used in the
- same way. The reason not to do this is simply that it results in a longer
- name, and could theoretically run afoul of domain name length limits.
+ Append '.local.' to the dataset's domain name. For cases where there is no unique
+ dataset identifier, the dataset's domain name can be used instead.
+ The reason not to do this is simply that it results in a longer
+ name, and could theoretically violate domain name length limits.
  The rewrite here would be from, e.g., 'hostname.default.service.arpa.' to
  'hostname.default.service.arpa.local.'.<a href="#section-2.1.2-3.3.1" class="pilcrow">¶</a></p>
 <p id="section-2.1.2-3.3.2">
@@ -1447,187 +1457,187 @@ svg :is([fill="white"], [fill^="#fff"]) {
  PTR records should be rewritten directly into '.local.'. So for example,
  the service advertisement in the earlier example, assuming a dataset domain
  name of 'default.service.arpa.', would be rewritten from
- '_example._transport.default.service.arpa. IN PTR hostname._example._transport.default.service.arpa'
- to '_example._transport.local IN PTR hostname._example._transport.default.service.arpa.local.'.<a href="#section-2.1.2-3.3.2" class="pilcrow">¶</a></p>
+ '_example._transport.default.service.arpa. IN PTR instname._example._transport.default.service.arpa.'
+ to '_example._transport.local. IN PTR instname._example._transport.default.service.arpa.local.'.<a href="#section-2.1.2-3.3.2" class="pilcrow">¶</a></p>
 </li>
-          </ul>
+          </ol>
 </section>
-<section id="section-2.1.3">
-          <h4 id="name-handling-of-address-records">
-<a href="#section-2.1.3" class="section-number selfRef">2.1.3. </a><a href="#name-handling-of-address-records" class="section-name selfRef">Handling of address records that are not global in scope</a>
-          </h4>
-<p id="section-2.1.3-1">
-     In some cases, the SRP requestor may register one or more address records for
-     addresses that aren't valid or reachable on some link on which the advertising proxy
-     could advertise them. The Advertising Proxy function MAY filter out such records
-     entirely, or MAY explicitly advertise such records only on the link(s) on which they are
-     reachable. This is optional because it requires the Advertising Proxy function to have
-     enough information to make such a determination, which may not always be the case.<a href="#section-2.1.3-1" class="pilcrow">¶</a></p>
-<p id="section-2.1.3-2">
-     Where such determinations are possible, the advertising proxy SHOULD NOT advertise an
-     IPv4 or IPv6 link-local address, or any other media-specific link-scoped address, on any
-     link other than the link on which the SRP registration was received.<a href="#section-2.1.3-2" class="pilcrow">¶</a></p>
-<p id="section-2.1.3-3">
-     However, when a determination as to the link on which a particular address record is
-     valid isn't being made, either because this capability isn't implemented by the
-     advertising proxy, or because that information isn't available, the advertising proxy
-     MUST advertise locally-scoped address.<a href="#section-2.1.3-3" class="pilcrow">¶</a></p>
 </section>
-<section id="section-2.1.4">
-          <h4 id="name-conflicts-and-stale-data">
-<a href="#section-2.1.4" class="section-number selfRef">2.1.4. </a><a href="#name-conflicts-and-stale-data" class="section-name selfRef">Conflicts and Stale Data</a>
-          </h4>
-<p id="section-2.1.4-1">
-     There are two issues that can come up when advertising a DNS zone using mDNS that
-     appear quite similar on the surface, but are actually fairly different. These both
-     show up as a "conflict," but in fact only one is actually a conflict.<a href="#section-2.1.4-1" class="pilcrow">¶</a></p>
-<p id="section-2.1.4-2">
-     A conflict occurs when two different devices assert authority for the same
-     name. However, stale data can also appear as a conflict, even though there is only one
-     device asserting authority for the data.  The problem of stale data occurs when we
-     have more than one advertising proxy replicating the same DNS dataset.<a href="#section-2.1.4-2" class="pilcrow">¶</a></p>
-<p id="section-2.1.4-3">
-     For actual conflicts, there is no need to do anything special. Either the advertising proxy
-     will prevail, or the other mDNS service will. If the advertising proxy does not prevail,
-     it can attempt again to advertise the record after some reasonable interval has passed.
-     This could either be the next time the record in question is updated (e.g. because of an
-     SRP lease renewal) or a fixed interval.<a href="#section-2.1.4-3" class="pilcrow">¶</a></p>
-<p id="section-2.1.4-4">
-     mDNS specifies that conflicts should be resolved by renaming. Instead of continuing to
-     try to claim the name that is in conflict, the advertising proxy MAY rename following the
-     mDNS renaming method. In this case, the mapping between the new name and the name as it
-     appears in the DNS dataset must be maintained until such time as the conflict no longer
-     exists. So this approach requires maintaining some state.<a href="#section-2.1.4-4" class="pilcrow">¶</a></p>
-<p id="section-2.1.4-5">
-     If the advertising proxy renames owner names into a subdomain of '.local' rather than into
-     '.local.', then actual conflicts should never occur, since what is being proxied is a single
-     dataset. So when we encounter an apparent conflict using these models, it can't be an actual
-     conflict, but rather stale data, and then the question is simply what to do next.<a href="#section-2.1.4-5" class="pilcrow">¶</a></p>
-<p id="section-2.1.4-6">
-     It should be the case in such situations that the problem will correct itself over time.
-     Some advertising proxy will win the apparent conflict, and so some version of the data
-     will be findable. However, following the usual mDNS conflict detection strategy, it is
-     most likely that a conflict will be resolved in favor of the stale data, not the new data.
-     This can result in persistent stale data being advertised by the advertising proxy.<a href="#section-2.1.4-6" class="pilcrow">¶</a></p>
-<p id="section-2.1.4-7">
-     To prevent stale data winning over updated data, advertising proxies MUST support the
-     Time Since Registered EDNS0 option <span>[<a href="#I-D.tllq-tsr" class="cite xref">TSR</a>]</span>.<a href="#section-2.1.4-7" class="pilcrow">¶</a></p>
+<section id="section-2.2">
+        <h3 id="name-handling-of-ip-address-reco">
+<a href="#section-2.2" class="section-number selfRef">2.2. </a><a href="#name-handling-of-ip-address-reco" class="section-name selfRef">Handling of IP address records that are not global in scope</a>
+        </h3>
+<p id="section-2.2-1">
+    In some cases, an SRP requester may register one or more IP address records for
+    addresses that aren't valid or reachable on some link on which the Advertising Proxy
+    could advertise them. The Advertising Proxy function MAY filter out such address records
+    entirely, or MAY explicitly advertise such records only on the link(s) on which they are
+    reachable. This is optional because it requires the Advertising Proxy function to have
+    enough information to make such a determination, which may not always be the case.<a href="#section-2.2-1" class="pilcrow">¶</a></p>
+<p id="section-2.2-2">
+    Where such determinations are possible, the Advertising Proxy SHOULD NOT advertise an
+    IPv4 or IPv6 link-local address, or any other media-specific link-scoped address, on any
+    link other than the link on which the SRP Update was received.<a href="#section-2.2-2" class="pilcrow">¶</a></p>
+<p id="section-2.2-3">
+    However, when a determination as to the link on which a particular IP address record is
+    valid isn't being made, either because this capability isn't implemented by the
+    Advertising Proxy, or because that information isn't available, the Advertising Proxy
+    MUST advertise link-scoped IP address records.<a href="#section-2.2-3" class="pilcrow">¶</a></p>
 </section>
-<section id="section-2.1.5">
-          <h4 id="name-no-text-encoding-translatio">
-<a href="#section-2.1.5" class="section-number selfRef">2.1.5. </a><a href="#name-no-text-encoding-translatio" class="section-name selfRef">No Text-Encoding Translation</a>
-          </h4>
-<p id="section-2.1.5-1">
-            As with a Discovery Proxy
-            <span>[<a href="#RFC8766" class="cite xref">RFC8766</a>]</span>,
-            an Advertising Proxy does no translation between
-            text encodings
-            <span>[<a href="#RFC6055" class="cite xref">RFC6055</a>]</span>.
-            Specifically, an Advertising Proxy does no
-            translation between Punycode encoding
-            <span>[<a href="#RFC3492" class="cite xref">RFC3492</a>]</span>
-            and UTF-8 encoding
-            <span>[<a href="#RFC3629" class="cite xref">RFC3629</a>]</span>,
-            either in the owner name of DNS records or
-            anywhere in the RDATA of DNS records
-            (such as the RDATA of PTR records, SRV records, NS
-            records, or other record types like TXT, where it is
-            ambiguous whether the RDATA may contain DNS names).
-            All bytes are treated as-is with no attempt at
-            text-encoding translation.
-            A server implementing DNS-based Service Discovery
-            <span>[<a href="#RFC6763" class="cite xref">RFC6763</a>]</span>
-            will use UTF-8 encoding for its unicast DNS-based
-            record registrations, which the Advertising Proxy
-            passes through without any text-encoding
-            translation to the Multicast DNS subsystem.
-            Queries from peers on the configured multicast-capable
-            interface are answered directly from the advertised data
-            without any text-encoding translation.<a href="#section-2.1.5-1" class="pilcrow">¶</a></p>
+<section id="section-2.3">
+        <h3 id="name-conflicts-and-stale-data">
+<a href="#section-2.3" class="section-number selfRef">2.3. </a><a href="#name-conflicts-and-stale-data" class="section-name selfRef">Conflicts and Stale Data</a>
+        </h3>
+<p id="section-2.3-1">
+    There are two issues that can come up when advertising a dataset using mDNS that
+    appear quite similar on the surface, but are actually fairly different. These both
+    show up as a "conflict," but in fact only one is actually a conflict.<a href="#section-2.3-1" class="pilcrow">¶</a></p>
+<p id="section-2.3-2">
+    A conflict occurs when two different devices assert authority for the same
+    name. However, stale data can also appear as a conflict, even though there is only one
+    device asserting authority for the data.  The problem of stale data occurs when there is
+    more than one Advertising Proxy replicating and advertising the same dataset.<a href="#section-2.3-2" class="pilcrow">¶</a></p>
+<p id="section-2.3-3">
+    For actual conflicts, there is no need to do anything special. Either the Advertising Proxy
+    will prevail, or the other mDNS service will. If the Advertising Proxy does not prevail,
+    it can attempt again to advertise the record after some reasonable time interval has passed.
+    This could either be the next time the record in question is updated (e.g., because of an
+    SRP Update) or a fixed time interval.<a href="#section-2.3-3" class="pilcrow">¶</a></p>
+<p id="section-2.3-4">
+    mDNS specifies that conflicts should be resolved by renaming. Instead of continuing to
+    try to claim the name that is in conflict, the Advertising Proxy MAY rename following the
+    mDNS renaming method. In this case, the mapping between the new name and the name as it
+    appears in the dataset must be maintained until such time as the conflict no longer
+    exists. So this approach requires maintaining some state.<a href="#section-2.3-4" class="pilcrow">¶</a></p>
+<p id="section-2.3-5">
+    If the Advertising Proxy renames owner names into a subdomain of '.local.' rather than into
+    '.local.', then actual conflicts should never occur, since what is being proxied is a single
+    dataset. So when we encounter an apparent conflict using these models, it can't be an actual
+    conflict, but rather stale data, and then the question is simply what to do next.<a href="#section-2.3-5" class="pilcrow">¶</a></p>
+<p id="section-2.3-6">
+    It should be the case in such situations that the problem will correct itself over time.
+    Some Advertising Proxy will win the apparent conflict, and so some version of the data
+    will be findable. However, following the usual mDNS conflict detection strategy, it is
+    most likely that a conflict will be resolved in favor of the stale data, not the new data.
+    This can result in persistent stale data being advertised by the Advertising Proxy.<a href="#section-2.3-6" class="pilcrow">¶</a></p>
+<p id="section-2.3-7">
+    To prevent stale data winning over updated data, an Advertising Proxy MUST support the
+    Time Since Received (TSR) EDNS0 option <span>[<a href="#I-D.ietf-dnssd-tsr" class="cite xref">TSR</a>]</span>.<a href="#section-2.3-7" class="pilcrow">¶</a></p>
 </section>
-<section id="section-2.1.6">
-          <h4 id="name-no-support-for-reconfirm">
-<a href="#section-2.1.6" class="section-number selfRef">2.1.6. </a><a href="#name-no-support-for-reconfirm" class="section-name selfRef">No Support for Reconfirm</a>
-          </h4>
-<p id="section-2.1.6-1">
-            For network efficiency,
-            Multicast DNS
-            <span>[<a href="#RFC6762" class="cite xref">RFC6762</a>]</span>
-            uses fairly long record lifetimes
-            (typically 75 minutes).
-            When a client is unable to reach
-            a service that it discovered,
-            Multicast DNS provides a "reconfirm"
-            mechanism that enables the client
-            to signal to the Multicast DNS subsystem
-            that its cached data may be suspect,
-            which causes the Multicast DNS subsystem
-            to reissue queries, and remove the stale
-            records if the queries are not answered.<a href="#section-2.1.6-1" class="pilcrow">¶</a></p>
-<p id="section-2.1.6-2">
-            Similarly, when using unicast service discovery
-            with a Discovery Proxy <span>[<a href="#RFC8766" class="cite xref">RFC8766</a>]</span>,
-            the DNS Push Notifications <span>[<a href="#RFC8765" class="cite xref">RFC8765</a>]</span> protocol
-            provides the RECONFIRM mechanism to signal that
-            the Discovery Proxy should perform a local
-            Multicast DNS reconfirm operation to
-            re-verify the validity of the records.<a href="#section-2.1.6-2" class="pilcrow">¶</a></p>
-<p id="section-2.1.6-3">
-            When an Advertising Proxy is used,
-            to support legacy clients that only implement Multicast DNS,
-            reconfirm operations have no effect.
+<section id="section-2.4">
+        <h3 id="name-no-text-encoding-translatio">
+<a href="#section-2.4" class="section-number selfRef">2.4. </a><a href="#name-no-text-encoding-translatio" class="section-name selfRef">No Text-Encoding Translations</a>
+        </h3>
+<p id="section-2.4-1">
+        Similar to a Discovery Proxy
+        <span>[<a href="#RFC8766" class="cite xref">RFC8766</a>]</span>,
+        an Advertising Proxy does no translation between
+        text encodings
+        <span>[<a href="#RFC6055" class="cite xref">RFC6055</a>]</span>.
+        Specifically, an Advertising Proxy does no
+        translation between Punycode encoding
+        <span>[<a href="#RFC3492" class="cite xref">RFC3492</a>]</span>
+        and UTF-8 encoding
+        <span>[<a href="#RFC3629" class="cite xref">RFC3629</a>]</span>,
+        either in the owner name of DNS records or
+        anywhere in the RDATA of DNS records
+        (such as the RDATA of PTR records, SRV records, NS
+        records, or other record types like TXT, where it is
+        ambiguous whether the RDATA may contain DNS names).
+        All bytes are treated as-is with no attempt at
+        text-encoding translation.
+        A server implementing DNS-based Service Discovery
+        <span>[<a href="#RFC6763" class="cite xref">RFC6763</a>]</span>
+        will use UTF-8 encoding for its unicast DNS-based
+        record registrations, which the Advertising Proxy
+        passes through without any text-encoding
+        translation to the Multicast DNS subsystem.
+        Queries from peers on the configured multicast-capable
+        interface are answered directly from the advertised data
+        without any text-encoding translation.<a href="#section-2.4-1" class="pilcrow">¶</a></p>
+</section>
+<section id="section-2.5">
+        <h3 id="name-no-support-for-reconfirm">
+<a href="#section-2.5" class="section-number selfRef">2.5. </a><a href="#name-no-support-for-reconfirm" class="section-name selfRef">No Support for Reconfirm</a>
+        </h3>
+<p id="section-2.5-1">
+        For network efficiency,
+        Multicast DNS
+        <span>[<a href="#RFC6762" class="cite xref">RFC6762</a>]</span>
+        uses fairly long record lifetimes
+        (typically 75 minutes).
+        When a client is unable to reach
+        a service that it discovered,
+        Multicast DNS provides a "reconfirm"
+        mechanism that enables the client
+        to signal to the Multicast DNS subsystem
+        that its cached data may be suspect,
+        which causes the Multicast DNS subsystem
+        to reissue queries, and remove the stale
+        records if the queries are not answered.<a href="#section-2.5-1" class="pilcrow">¶</a></p>
+<p id="section-2.5-2">
+        Similarly, when using unicast service discovery
+        with a Discovery Proxy <span>[<a href="#RFC8766" class="cite xref">RFC8766</a>]</span>,
+        the DNS Push Notifications <span>[<a href="#RFC8765" class="cite xref">RFC8765</a>]</span> protocol
+        provides the RECONFIRM mechanism to signal that
+        the Discovery Proxy should perform a local
+        Multicast DNS reconfirm operation to
+        re-verify the validity of the records.<a href="#section-2.5-2" class="pilcrow">¶</a></p>
+<p id="section-2.5-3">
+        When an Advertising Proxy is used,
+        to support legacy clients that only implement Multicast DNS,
+        reconfirm operations have no effect.
 
-            If a device uses unicast Service Registration Protocol
-            <span>[<a href="#I-D.ietf-dnssd-srp" class="cite xref">SRP</a>]</span>
-            to register its services
-            with a service registry with Advertising Proxy capability,
-            and the device then gets disconnected from the network,
-            the Advertising Proxy will continue to advertise
-            those records until the registrations expire.
+        If a device uses unicast Service Registration Protocol
+        <span>[<a href="#RFC9665" class="cite xref">RFC9665</a>]</span>
+        to register its services
+        with a service registry with both SRP registrar and Advertising Proxy functions,
+        and the device then gets disconnected from the network,
+        the Advertising Proxy will continue to advertise
+        those records until the service registrations expire.
 
-            If a client discovers the service instance using
-            Multicast DNS and is unable to reach it,
-            and uses a Multicast DNS reconfirm operation to re-verify
-            the validity of the records, then
-            the Advertising Proxy will continue
-            to answer on behalf of the departed device
-            until the record registrations expire.
+        If a client discovers the service instance using
+        Multicast DNS and is unable to reach it,
+        and uses a Multicast DNS reconfirm operation to re-verify
+        the validity of the records, then
+        the Advertising Proxy will continue
+        to answer on behalf of the departed device
+        until the service registrations expire.
 
-            The Advertising Proxy has no reliable way
-            to determine whether the additional Multicast DNS
-            queries are due to a reconfirm operation,
-            or due to other routine causes,
-            like a client being rebooted,
-            or disconnecting and then reconnecting to the network.
+        The Advertising Proxy has no reliable way
+        to determine whether the additional Multicast DNS
+        queries are due to a reconfirm operation,
+        or due to other routine causes,
+        like a client being rebooted,
+        or a client disconnecting and then reconnecting to the network.
 
-            The service registry has no reliable automatic way
-            to determine whether a device that
-            registered records has failed or disconnected from the network.
-            Particularly with sleepy battery powered devices,
-            the service registry does not know what active duty cycle
-            any given service is expected to provide.<a href="#section-2.1.6-3" class="pilcrow">¶</a></p>
-<p id="section-2.1.6-4">
-            Consequently, reconfirm operations are not supported
-            with an Advertising Proxy using multicast DNS.
-            In cases where use of the reconfirm mechanism
-            is important, clients should be upgraded to use the unicast
-            DNS Push Notifications <span>[<a href="#RFC8765" class="cite xref">RFC8765</a>]</span> protocol's
-            RECONFIRM message.
-            This RECONFIRM message provides an unambiguous signal
-            to the service registry that it may be retaining stale records.
-            (A future update to the Service Registration Protocol document
-            <span>[<a href="#I-D.ietf-dnssd-srp" class="cite xref">SRP</a>]</span>
-            will consider ways that this unambiguous signal
-            can be used to trigger expedited removal of stale data.)<a href="#section-2.1.6-4" class="pilcrow">¶</a></p>
-</section>
+        The service registry has no reliable automatic way
+        to determine whether a device that
+        registered records has meanwhile failed or disconnected from the network.
+        Particularly with services provided by sleepy battery-powered devices,
+        the service registry does not know what active duty cycle
+        any given service is expected to provide.<a href="#section-2.5-3" class="pilcrow">¶</a></p>
+<p id="section-2.5-4">
+        Consequently, reconfirm operations are not supported
+        with an Advertising Proxy using Multicast DNS.
+        In cases where use of the reconfirm mechanism
+        is important, clients should be upgraded to use the unicast
+        DNS Push Notifications <span>[<a href="#RFC8765" class="cite xref">RFC8765</a>]</span> protocol's
+        RECONFIRM message.
+        This RECONFIRM message provides an unambiguous signal
+        to the service registry that it may be retaining stale records.
+        (A future update to the Service Registration Protocol
+        <span>[<a href="#RFC9665" class="cite xref">RFC9665</a>]</span>
+        could consider ways that this unambiguous signal
+        can be used to trigger expedited removal of stale data.)<a href="#section-2.5-4" class="pilcrow">¶</a></p>
 </section>
 </section>
 <section id="section-3">
       <h2 id="name-security-considerations">
 <a href="#section-3" class="section-number selfRef">3. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
       </h2>
-<p id="section-3-1">An Advertising Proxy may made data visible
-      to eavesdroppers on the configured multicast-capable link(s).<a href="#section-3-1" class="pilcrow">¶</a></p>
+<p id="section-3-1">An Advertising Proxy can make DNS records visible
+      to eavesdroppers on the configured multicast-capable link(s) on which it advertises using mDNS.<a href="#section-3-1" class="pilcrow">¶</a></p>
 </section>
 <section id="section-4">
       <h2 id="name-iana-considerations">
@@ -1656,9 +1666,9 @@ svg :is([fill="white"], [fill^="#fff"]) {
         <dd>
 <span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03" class="refDate">March 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc2119">https://www.rfc-editor.org/info/rfc2119</a>&gt;</span>. </dd>
 <dd class="break"></dd>
-<dt id="RFC6760">[RFC6760]</dt>
+<dt id="RFC2181">[RFC2181]</dt>
         <dd>
-<span class="refAuthor">Cheshire, S.</span> and <span class="refAuthor">M. Krochmal</span>, <span class="refTitle">"Requirements for a Protocol to Replace the AppleTalk Name Binding Protocol (NBP)"</span>, <span class="seriesInfo">RFC 6760</span>, <span class="seriesInfo">DOI 10.17487/RFC6760</span>, <time datetime="2013-02" class="refDate">February 2013</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc6760">https://www.rfc-editor.org/info/rfc6760</a>&gt;</span>. </dd>
+<span class="refAuthor">Elz, R.</span> and <span class="refAuthor">R. Bush</span>, <span class="refTitle">"Clarifications to the DNS Specification"</span>, <span class="seriesInfo">RFC 2181</span>, <span class="seriesInfo">DOI 10.17487/RFC2181</span>, <time datetime="1997-07" class="refDate">July 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc2181">https://www.rfc-editor.org/info/rfc2181</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC6761">[RFC6761]</dt>
         <dd>
@@ -1680,13 +1690,13 @@ svg :is([fill="white"], [fill^="#fff"]) {
         <dd>
 <span class="refAuthor">Pusateri, T.</span> and <span class="refAuthor">S. Cheshire</span>, <span class="refTitle">"DNS Push Notifications"</span>, <span class="seriesInfo">RFC 8765</span>, <span class="seriesInfo">DOI 10.17487/RFC8765</span>, <time datetime="2020-06" class="refDate">June 2020</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc8765">https://www.rfc-editor.org/info/rfc8765</a>&gt;</span>. </dd>
 <dd class="break"></dd>
-<dt id="I-D.ietf-dnssd-srp">[SRP]</dt>
+<dt id="RFC9665">[RFC9665]</dt>
         <dd>
-<span class="refAuthor">Lemon, T.</span> and <span class="refAuthor">S. Cheshire</span>, <span class="refTitle">"Service Registration Protocol for DNS-Based Service Discovery"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-dnssd-srp-25</span>, <time datetime="2024-03-04" class="refDate">4 March 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-dnssd-srp-25">https://datatracker.ietf.org/doc/html/draft-ietf-dnssd-srp-25</a>&gt;</span>. </dd>
+<span class="refAuthor">Lemon, T.</span> and <span class="refAuthor">S. Cheshire</span>, <span class="refTitle">"Service Registration Protocol for DNS-Based Service Discovery"</span>, <span class="seriesInfo">RFC 9665</span>, <span class="seriesInfo">DOI 10.17487/RFC9665</span>, <time datetime="2025-06" class="refDate">June 2025</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc9665">https://www.rfc-editor.org/info/rfc9665</a>&gt;</span>. </dd>
 <dd class="break"></dd>
-<dt id="I-D.tllq-tsr">[TSR]</dt>
+<dt id="I-D.ietf-dnssd-tsr">[TSR]</dt>
       <dd>
-<span class="refAuthor">Lemon, T.</span> and <span class="refAuthor">L. Qin</span>, <span class="refTitle">"Multicast DNS conflict resolution using the Time Since Received (TSR) EDNS option"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-tllq-tsr-05</span>, <time datetime="2024-10-21" class="refDate">21 October 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-tllq-tsr-05">https://datatracker.ietf.org/doc/html/draft-tllq-tsr-05</a>&gt;</span>. </dd>
+<span class="refAuthor">Lemon, T.</span> and <span class="refAuthor">E. Dijk</span>, <span class="refTitle">"Multicast DNS conflict resolution using the Time Since Received (TSR) EDNS option"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-dnssd-tsr-03</span>, <time datetime="2026-07-06" class="refDate">6 July 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-dnssd-tsr-03">https://datatracker.ietf.org/doc/html/draft-ietf-dnssd-tsr-03</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 </dl>
 </section>
@@ -1703,17 +1713,13 @@ svg :is([fill="white"], [fill^="#fff"]) {
         <dd>
 <span class="refAuthor">Yergeau, F.</span>, <span class="refTitle">"UTF-8, a transformation format of ISO 10646"</span>, <span class="seriesInfo">STD 63</span>, <span class="seriesInfo">RFC 3629</span>, <span class="seriesInfo">DOI 10.17487/RFC3629</span>, <time datetime="2003-11" class="refDate">November 2003</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc3629">https://www.rfc-editor.org/info/rfc3629</a>&gt;</span>. </dd>
 <dd class="break"></dd>
-<dt id="RFC5625">[RFC5625]</dt>
-        <dd>
-<span class="refAuthor">Bellis, R.</span>, <span class="refTitle">"DNS Proxy Implementation Guidelines"</span>, <span class="seriesInfo">BCP 152</span>, <span class="seriesInfo">RFC 5625</span>, <span class="seriesInfo">DOI 10.17487/RFC5625</span>, <time datetime="2009-08" class="refDate">August 2009</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc5625">https://www.rfc-editor.org/info/rfc5625</a>&gt;</span>. </dd>
-<dd class="break"></dd>
 <dt id="RFC6055">[RFC6055]</dt>
         <dd>
 <span class="refAuthor">Thaler, D.</span>, <span class="refAuthor">Klensin, J.</span>, and <span class="refAuthor">S. Cheshire</span>, <span class="refTitle">"IAB Thoughts on Encodings for Internationalized Domain Names"</span>, <span class="seriesInfo">RFC 6055</span>, <span class="seriesInfo">DOI 10.17487/RFC6055</span>, <time datetime="2011-02" class="refDate">February 2011</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc6055">https://www.rfc-editor.org/info/rfc6055</a>&gt;</span>. </dd>
 <dd class="break"></dd>
-<dt id="RFC7558">[RFC7558]</dt>
+<dt id="RFC6760">[RFC6760]</dt>
         <dd>
-<span class="refAuthor">Lynn, K.</span>, <span class="refAuthor">Cheshire, S.</span>, <span class="refAuthor">Blanchet, M.</span>, and <span class="refAuthor">D. Migault</span>, <span class="refTitle">"Requirements for Scalable DNS-Based Service Discovery (DNS-SD) / Multicast DNS (mDNS) Extensions"</span>, <span class="seriesInfo">RFC 7558</span>, <span class="seriesInfo">DOI 10.17487/RFC7558</span>, <time datetime="2015-07" class="refDate">July 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc7558">https://www.rfc-editor.org/info/rfc7558</a>&gt;</span>. </dd>
+<span class="refAuthor">Cheshire, S.</span> and <span class="refAuthor">M. Krochmal</span>, <span class="refTitle">"Requirements for a Protocol to Replace the AppleTalk Name Binding Protocol (NBP)"</span>, <span class="seriesInfo">RFC 6760</span>, <span class="seriesInfo">DOI 10.17487/RFC6760</span>, <time datetime="2013-02" class="refDate">February 2013</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc6760">https://www.rfc-editor.org/info/rfc6760</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC8766">[RFC8766]</dt>
         <dd>
@@ -1729,7 +1735,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="break"></dd>
 <dt id="I-D.ietf-snac-simple">[STUBNET]</dt>
         <dd>
-<span class="refAuthor">Lemon, T.</span> and <span class="refAuthor">J. Hui</span>, <span class="refTitle">"Automatically Connecting Stub Networks to Unmanaged Infrastructure"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-snac-simple-06</span>, <time datetime="2024-11-04" class="refDate">4 November 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-snac-simple-06">https://datatracker.ietf.org/doc/html/draft-ietf-snac-simple-06</a>&gt;</span>. </dd>
+<span class="refAuthor">Lemon, T.</span>, <span class="refAuthor">Hui, J.</span>, and <span class="refAuthor">E. Dijk</span>, <span class="refTitle">"Automatically Connecting Stub Networks to Unmanaged Infrastructure"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-snac-simple-10</span>, <time datetime="2026-05-06" class="refDate">6 May 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-snac-simple-10">https://datatracker.ietf.org/doc/html/draft-ietf-snac-simple-10</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="ZC">[ZC]</dt>
       <dd>
@@ -1775,6 +1781,16 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <div class="email">
 <span>Email:</span>
 <a href="mailto:elemon@apple.com" class="email">elemon@apple.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Esko Dijk</span></div>
+<div dir="auto" class="left"><span class="org">IoTconsultancy.nl</span></div>
+<div dir="auto" class="left"><span class="locality">Utrecht</span></div>
+<div dir="auto" class="left"><span class="country-name">Netherlands</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:esko.dijk@iotconsultancy.nl" class="email">esko.dijk@iotconsultancy.nl</a>
 </div>
 </address>
 </section>
