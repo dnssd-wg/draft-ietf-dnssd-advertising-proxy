@@ -424,17 +424,23 @@
     show up as a "conflict," but in fact only one is actually a conflict.
   </t>
   <t>
+    To prevent stale data winning over updated data, an Advertising Proxy MUST support the
+    Time Since Received (TSR) EDNS0 option <xref target="I-D.ietf-dnssd-tsr"/>. This should
+    mean that different advertising proxies advertising RRs on behalf of entities for which
+    TSR is applicable will treat data that would otherwise be seen as conflicting according
+    to the TSR specification, and hence such data will not be treated as a name conflict.
+  </t>
+  <t>
+    In the case that an entire DNS zone is controlled by a single entity, that entity should
+    provide a key tag (and possibly a key) to identify itself, and the "time since received"
+    should be derived based on the time that the zone was updated. This can be done e.g.
+    by treating the zone serial number as a date, for normal DNS zones.
+  </t>
+  <t>
     A conflict occurs when two different devices assert authority for the same
     name. However, stale data can also appear as a conflict, even though there is only one
     device asserting authority for the data.  The problem of stale data occurs when there is
     more than one Advertising Proxy replicating and advertising the same dataset.
-  </t>
-  <t>
-    For actual conflicts, there is no need to do anything special. Either the Advertising Proxy
-    will prevail, or the other mDNS service will. If the Advertising Proxy does not prevail,
-    it can attempt again to advertise the record after some reasonable time interval has passed.
-    This could either be the next time the record in question is updated (e.g., because of an
-    SRP Update) or a fixed time interval.
   </t>
   <t>
     mDNS specifies that conflicts should be resolved by renaming. Instead of continuing to
@@ -444,24 +450,98 @@
     exists. So this approach requires maintaining some state.
   </t>
   <t>
-    If the Advertising Proxy renames owner names into a subdomain of '.local.' rather than into
-    '.local.', then actual conflicts should never occur, since what is being proxied is a single
-    dataset. So when we encounter an apparent conflict using these models, it can't be an actual
-    conflict, but rather stale data, and then the question is simply what to do next.
+    How this should be resolved depends on the exact circumstances. The advertising proxy is
+    a general-purpose specification, but also has particular uses. How the domain being
+    advertised is maintained therefore has a significant impact on how this problem should
+    be solved.
   </t>
-  <t>
-    It should be the case in such situations that the problem will correct itself over time.
-    Some Advertising Proxy will win the apparent conflict, and so some version of the data
-    will be findable. However, following the usual mDNS conflict detection strategy, it is
-    most likely that a conflict will be resolved in favor of the stale data, not the new data.
-    This can result in persistent stale data being advertised by the Advertising Proxy.
-  </t>
-  <t>
-    To prevent stale data winning over updated data, an Advertising Proxy MUST support the
-    Time Since Received (TSR) EDNS0 option <xref target="I-D.ietf-dnssd-tsr"/>.
-  </t>
+  <section anchor="managed-zones">
+    <name>Managed Zone</name>
+    <t>
+      In the case of a managed zone being replicated via an advertising proxy, there is no
+      practical way we can specify to deal with conflicts. The contents of the zone are
+      specified by the administrator, but the contents of the mDNS are unmanaged. A conflict in
+      this case could have many meanigns and many resolutions. An advertising proxy in such a
+      configuration SHOULD, where possible, have a way, either through logging or a user
+      interface, to notify the administrator of the conflict. The administrator is expected
+      to determine the resolution of the conflict.
+    </t>
+    <t>
+      In the case of a managed zone, in the case of DNSSD, and possibly other cases, there can
+      be a remedy available that is not available in other use cases. Presumably the DNS zone
+      being advertised is also a DNS zone that can be queried via DNS. If that's the case,
+      the advertising proxy can simply not rewrite domains pointed to by RRs in the zone.
+    </t>
+    <t>
+      In this case, for example, the PTR query to browse services can simply point to the
+      DNS, and the rest of the discovery query can then be satisfied through DNS rather than
+      mDNS queries. In this case, the behavior required in <xref target="consistency"/> is
+      no longer necessary because all pointers into the zone are pointers into the DNS zone
+      and not into mDNS, and so mDNS conflicts are not a problem.
+    </t>
+    <t>
+      If this approach is used, then it's actually not even necessary to publish the names
+      at the target. An advertising proxy MAY identify pointed-to records and not translate
+      or publish them using mDNS.
+    </t>
+  </section>
+  <section>
+    <name>Autonomously Maintained Infrastructure Zone</name>
+    <t>
+      If the advertising proxy is running on an infrastructure device (e.g. a CE Router
+      <xref target="RFC7084"/>, then the SRP zone should be discoverable using DNS lookups.
+      In this case, the behavior described in <xref target="managed-zones"/> will work and
+      is RECOMMENDED. In general, doing service discovery using DNS instead of mDNS is
+      more effecitient, faster, and more reliable, so where possible this approach is
+      better than discovering everything over mDNS, even in cases where some mDNS discovery
+      is necessary.
+    </t>
+    <t>
+      Infrastructure advertising proxies MAY use the same techniques described in
+      <xref target="ad-hoc"/>. This is less efficient, but can be appropriate, for example
+      in the case where there is more than one infrastructure CE router, and hence DNS
+      cannot be assumed to work for all hosts on the link, and also for cases where the
+      implementation is shared between infrastructure use cases and ad-hoc use cases,
+      and only supports the latter.
+    </t>
+  </section>
+  <section anchor="ad-hoc">
+    <name>Ad-hoc Zones Maintained using SRP</name>
+    <t>
+      In the case of a zone maintained by SRP, how the advertising proxy behaves when a conflict
+      is detected is ideally controlled by the SRP client. If the SRP client indicates that
+      it doesn't care about mDNS name conflicts, then the advertising proxy can do renaming
+      itself. If the SRP client cares, then the record that got the mDNS conflict can be
+      removed from the zone maintained by SRP, the client can be notified, and it can choose
+      a new name.
+    </t>
+    <t>
+      If the client is not taking responsibility for renaming, then the advertising proxy MUST
+      choose a new owner name to replace the owner name of the RRs that got the name conflict
+      in mDNS. In this case, the advertising proxy MUST also update any RRs that point to
+      that name.
+    </t>
+    <t>
+      When renaming, the advertising proxy MUST allocate a subdomain of .local in which to
+      advertise the new name. It SHOULD maintain exactly one such subdomain per advertised
+      zone. The subdomain name is claimed by choosing a name and advertising an SOA record on
+      that name using mDNS. If no name conflict occurs when advertising this SOA record, the
+      name is used, otherwise the advertising proxy chooses a new name until it is successful.
+    </t>
+    <t>
+      Once a .local subdomain is allocated, the advertising proxy advertises the name that
+      got the conflict in the subdomain. Such domains will also be discovered using mDNS, but
+      since the advertising proxy has claimed the subdomain, it should be safe to advertise
+      records under it, and they should never get name conflicts.
+    </t>
+    <t>
+      In the case that a name conflict happens when advertising the name in the claimed zone,
+      the advertising proxy MUST fall back to mDNS renaming as described in
+      <xref target="RFC6762" section="9" sectionFormat="of"/>.
+    </t>
+  </section>
 </section>
-<section>
+<section anchor="consistency">
   <name>Data Consistency in the Presence of Conflicts</name>
   <t>
     It can be the case that a record for which there would be no mDNS conflict points to a name
