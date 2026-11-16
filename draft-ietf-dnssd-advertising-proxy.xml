@@ -372,15 +372,48 @@
     enough information to make such a determination, which may not always be the case.
   </t>
   <t>
-    Where such determinations are possible, the Advertising Proxy SHOULD NOT advertise an
-    IPv4 or IPv6 link-local address, or any other media-specific link-scoped address, on any
-    link other than the link on which the SRP Update was received.
+    Filtering such addresses when possible is particularly beneficial for link-local addresses,
+    since there is no way to determine, using the list of on-link prefixes or routes, that the
+    address is not locally reachable. Howwever, when reachable, link-local addresses are
+    generally preferable because they can be assumed to be the most stable addresses. So
+    correct handling of such addresses can prevent delays.
   </t>
   <t>
-    However, when a determination as to the link on which a particular IP address record is
-    valid isn't being made, either because this capability isn't implemented by the
-    Advertising Proxy, or because that information isn't available, the Advertising Proxy
-    MUST advertise link-scoped IP address records.
+    In order for any such filtering to be possible, it is necessary that the mechanism whereby
+    addresses are added to the putative DNS zone or zones that the advertising proxy is advertising
+    identify the link on which the address is valid. How specifically this identification occurs is
+    out of scope for this document.
+  </t>
+  <t>
+    Where such determinations are possible, the Advertising Proxy MUST NOT advertise an
+    IPv4 or IPv6 link-local address, or any other media-specific link-scoped address, on any
+    link other than the link on which it is valid.
+  </t>
+  <t>
+    When a link-scoped IP address is present in the zone, and other addresses of wider scope
+    are also available, and the advertising proxy does not know on which link the link-scoped
+    address is valid, the advetising proxy MUST NOT advertise that address. However, when that
+    address is the only alternative, it MUST advertise the address.
+  </t>
+  <t>
+    When the address is global in scope, the advertising proxy MAY, when able, determine whether
+    or not the address might work on a particular link by using its routing table and its
+    knowledge of on-link prefixes as a guide. This determination can be done as described in
+    <xref target="RFC6724"/> as modified by <xref target="draft-ietf-6man-rfc6724-update"/>.
+    If there is no valid pair of source and destinationa ddress that would work on the link,
+    then the advertising proxy MUST NOT advertise that address.
+  </t>
+  <t>
+    It is possible that none of the addresses in the set of address RRs in the zone being
+    advertised for a specific name are valid on a particular link. In this case, the advertising
+    proxy MAY advertise the entire RRset.
+  </t>
+  <t>
+    It could be observed that a host might be connected to two links A and B, such that addresses
+    discovered via mDNS on link A might not work on link A, but might work on link B. However,
+    mDNS is link-specific. The validity of addresses on other links a host may be connected to
+    is out of scope for mDNS. Therefore, supporting this configuration is out of scope for
+    advertising proxies.
   </t>
 </section>
 <section>
