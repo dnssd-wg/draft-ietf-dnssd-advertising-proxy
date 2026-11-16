@@ -2,7 +2,7 @@
 <!DOCTYPE rfc SYSTEM "rfc2629-xhtml.ent">
 
 <rfc xmlns:xi="http://www.w3.org/2001/XInclude" version="3" consensus="true"
-     category="std" docName="draft-ietf-dnssd-advertising-proxy-latest" ipr="trust200902"
+     category="std" docName="draft-ietf-dnssd-advertising-proxy-07" ipr="trust200902"
      obsoletes="" updates="" submissionType="IETF" xml:lang="en"
      tocInclude="true" tocDepth="3" symRefs="true" sortRefs="false">
 
@@ -50,7 +50,7 @@
       </address>
     </author>
 
-    <date year="2026" month="July" day='6'/>
+    <date year="2026" month="November" day='16'/>
 
     <area>INT</area>
     <workgroup>DNSSD</workgroup>
@@ -242,8 +242,8 @@
 	    be 16 more labels below the zone cut that are still part of the zone.
 	  </t>
 	  <t>
-	    For the DNS Service Discovery use case, this pattern — a zone including more than one level —
-        is quite common. A service instance name in mDNS
+	    For the DNS Service Discovery use case, this pattern&mdash;a zone including more than one
+	    level&mdash;is quite common. A service instance name in mDNS
 	    will typically look something like 'servicename._example._udp.&lt;domain&gt;.' A hostname on the
 	    other hand will look like 'hostname.&lt;domain&gt;.' So we need to distinguish between the
 	    name of the zone in which a name is advertised, the set of subdomains that actually represent
@@ -399,7 +399,7 @@
     When the address is global in scope, the advertising proxy MAY, when able, determine whether
     or not the address might work on a particular link by using its routing table and its
     knowledge of on-link prefixes as a guide. This determination can be done as described in
-    <xref target="RFC6724"/> as modified by <xref target="draft-ietf-6man-rfc6724-update"/>.
+    <xref target="RFC6724"/> as modified by <xref target="I-D.ietf-6man-rfc6724-update"/>.
     If there is no valid pair of source and destinationa ddress that would work on the link,
     then the advertising proxy MUST NOT advertise that address.
   </t>
@@ -424,11 +424,12 @@
     show up as a "conflict," but in fact only one is actually a conflict.
   </t>
   <t>
-    To prevent stale data winning over updated data, an Advertising Proxy MUST support the
-    Time Since Received (TSR) EDNS0 option <xref target="I-D.ietf-dnssd-tsr"/>. This should
-    mean that different advertising proxies advertising RRs on behalf of entities for which
-    TSR is applicable will treat data that would otherwise be seen as conflicting according
-    to the TSR specification, and hence such data will not be treated as a name conflict.
+    To prevent stale data winning over updated data, an Advertising Proxy MUST support the Time
+    Since Received (TSR) EDNS0 option described in <xref target="I-D.ietf-dnssd-tsr"/>. This
+    should mean that different advertising proxies advertising RRs on behalf of entities for
+    which TSR is applicable will treat data that would otherwise be seen as conflicting
+    according to the TSR specification, and hence such data will not be treated as a name
+    conflict.
   </t>
   <t>
     In the case that an entire DNS zone is controlled by a single entity, that entity should
@@ -638,6 +639,44 @@
     other RR that contains a pointer to an affected name.
   </t>
 </section>
+<section>
+  <name>Multiple advertisers</name>
+  <t>
+    mDNS responders in general are expected to be able to provide redundant service. There are
+    several existing documented use cases. Unicast Local Discovery <xref target="I-D.ietf-dnssd-uld"/>
+    and SRP Replication <xref target="I-D.ietf-dnssd-srp-replication"/> are two of these.
+    Coordination between Multicast DNS Responders <xref target="I-D.ietf-dnssd-tsr"/> extends the
+    mDNS protocol to better support these use cases. Advertising proxies MUST implement this
+    specification.
+  </t>
+</section>
+<section>
+  <name>Advertising Key Record</name>
+  <t>
+    It's possible in the case of an SRP dataset that a name might be reserved using a KEY lease, but
+    no other records published on that name. In such cases, the advertising proxy MUST defend the name
+    in mDNS so that it's not taken by some other device. To do this, it MUST advertise the KEY record.
+    It is not necessary that this key record contain the client's actual key. However, since the
+    TSR record contains a KEY tag, the key is not revealing anything new. The advertising proxy
+    MAY advertise a smaller KEY record to hold the name, or MAY advertise the actual KEY record that
+    the client provided.
+  </t>
+  <t>
+    If there are other RRs on a name, the key record is not necessary to defend the name. Whether
+    the advertising proxy includes the KEY record in this case is an implementation choice. Since there
+    is no privacy issue, the main reason to include it is to keep the implementation simple, and the
+    main reason to exclude it is to reduce multicast traffic.
+  </t>
+</section>
+<section>
+  <name>TTL values</name>
+  <t>
+    The mDNS specification says that address records should be advertised with a TTL of 120 seconds,
+    and other records with a TTL of 75 minutes. This can produce a pattern where a long-lived query
+    monitoring address records produces a lot of mDNS traffic. For this reason, we suggest using a
+    TTL of 75 minutes in all cases.
+  </t>
+</section>
 <section numbered="true">
       <name>No Text-Encoding Translations</name>
 
@@ -793,6 +832,11 @@
             href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.9665.xml"/>
 
         <xi:include
+            href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6724.xml"/>
+        <xi:include
+            href="https://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-6man-rfc6724-update.xml"/>
+
+        <xi:include
             href="https://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-dnssd-tsr.xml"/>
       </references>
 
@@ -809,6 +853,8 @@
             href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6760.xml"/>
         <xi:include
             href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8766.xml"/>
+        <xi:include
+            href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7084.xml"/>
 
         <xi:include
             href="https://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.cheshire-dnssd-roadmap.xml"/>
@@ -816,6 +862,9 @@
             href="https://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-dnssd-srp-replication.xml"/>
         <xi:include
             href="https://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-snac-simple.xml"/>
+        <xi:include
+            href="https://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-dnssd-uld.xml"/>
+
 
         <reference anchor="ZC">
           <front>
