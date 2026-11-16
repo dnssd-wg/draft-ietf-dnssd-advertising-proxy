@@ -73,14 +73,16 @@ Table of Contents
 
    1.  Introduction
      1.1.  Conventions and Terminology Used in This Document
+     1.2.  Glossary
    2.  Advertising Proxy
      2.1.  Mapping non-'.local.' domain names to '.local.'
        2.1.1.  The DNS Dataset
        2.1.2.  How to rewrite names
      2.2.  Handling of IP address records that are not global in scope
      2.3.  Conflicts and Stale Data
-     2.4.  No Text-Encoding Translations
-     2.5.  No Support for Reconfirm
+     2.4.  Data Consistency in the Presence of Conflicts
+     2.5.  No Text-Encoding Translations
+     2.6.  No Support for Reconfirm
    3.  Security Considerations
    4.  IANA Considerations
    5.  References
@@ -155,6 +157,17 @@ Table of Contents
    [RFC6762], [RFC6763] and [RFC9665] is used in this document.
 
    'dataset' is defined in Section 2.1.1.
+
+1.2.  Glossary
+
+   Advertised Zone  A zone that is being advertised over mDNS by an
+      Advertising Proxy.
+
+   Owner Name  The domain name on which some DNS RR is discoverable.
+      For example, a host with an IP address of 2001:db8::1 might have
+      an AAAA record on the name 'host.local'.  In this case,
+      'host.local' is the owner name of this AAAA record.  See
+      Section 3.2.1 of [RFC1035].
 
 2.  Advertising Proxy
 
@@ -409,7 +422,107 @@ Table of Contents
    To prevent stale data winning over updated data, an Advertising Proxy
    MUST support the Time Since Received (TSR) EDNS0 option [TSR].
 
-2.4.  No Text-Encoding Translations
+2.4.  Data Consistency in the Presence of Conflicts
+
+   It can be the case that a record for which there would be no mDNS
+   conflict points to a name in an advertised zone for which a name
+   conflict exists.  In such a situation, a name that is provided under
+   the authority of the zone points to a name that is provided by some
+   other authority.  This can be a simple mistake, but also creates an
+   opportunity for an attack.  Note that this section applies _only_ to
+   cases of name conflicts, and _not_ to cases of stale data.
+
+   The advertising proxy is expected to prevent situations where a name
+   that refers to one entity accidentally or intentionally winds up
+   pointing to a name that refers to a different entity, to the extent
+   possible.  There are some cases where this may not be possible.  One
+   example is an RRtype that was either defined after the advertising
+   proxy implementation was done, or of which the implementor was not
+   aware.  Another example is an RR like the TXT record, which can in
+   principle contain one or more domain names, but which has no formal
+   semantics that specifies that it points to one or more domain names.
+
+   There are three combinations of owner name and resource record that
+   need to be considered here:
+
+   Type A:  Owner names for which publication of a record produced a
+      name conflict
+
+   Type B:  Owner names for which one or more RRs point to another owner
+      name of Type A
+
+   Type C:  Owner names for which one or more RRs point to another owner
+      name of Type B or Type C.
+
+   For the purposes of this section, a name of type A, B or C is
+   referred to as an "affected name."  When an advertising proxy detects
+   that an RR it is publishing points to an affected name, it MUST stop
+   publishing that RR.  When an advertising proxy would normally begin
+   to publish such an RR, it MUST NOT do so.
+
+   The advertising proxy may have other records to publish on the same
+   owner name.  For such records, if it knows that they refer to the
+   same entity, it SHOULD NOT publish those records.  The reason not to
+   publish them is twofold: first, to avoid a situation where the
+   consumer of the record winds up in an unexpected state because it
+   discovers one record but not another, and secondly to avoid sending
+   useless multicast traffic.
+
+   However, advertising proxies are not required to have such knowledge
+   for any particular use case.  If the advertising proxy does not know
+   that such a relationship exists, it MUST publish such records.
+
+   One of the primary current use cases for advertising proxies is
+   DNSSD, so advertising proxies MUST understand the semantic
+   relationship between DNSSD records, specifically the SRV and PTR
+   records.
+
+   To illustrate the problem, consider a DNS-SD service advertisement
+   for a printer service.  The service instance name might be 'laser-
+   printer._ipp._tcp.local'.  The service instance will typically be the
+   owner name of two records: an SRV and a TXT record.
+
+   The SRV record has another domain name as its target hostname.  This
+   target name in most cases will appear in the same zone as the service
+   instance name.  So here it might be 'printer.local'.  Suppose that
+   when the advertising proxy advertises an AAAA record for
+   printer.local, it gets a name conflict.
+
+   In this situation, the SRV record is now pointing to some host
+   _other_ than the printer.  This other host might be another printer,
+   or it could easily be an attacker attempting to capture print jobs.
+   In order to prevent this, the advertising proxy does not publish the
+   SRV record.  An advertising proxy that is aware of DNSSD semantics
+   also does not publish the TXT record, because it is on the affected
+   name and is related.
+
+   But remember that a DNSSD service advertisement consists of a PTR
+   record on the service name ('_ipp._tcp.local') pointing to the
+   service instance name.  If more than one service of the same type is
+   advertised, there will be one PTR record per such service.  These PTR
+   records all have the same owner name, but are referring to distinct
+   services.
+
+   Whether an advertising proxy is aware of DNSSD semantics or not, it
+   will not publish the PTR record pointing to 'laser-
+   printer._ipp._tcp.local' because it is a record pointing to an
+   affected name.  However, if the advertising proxy did not understand
+   the semantics of DNSSD and removed all other PTR records because
+   they're in the same RRset on the same owner name, this would
+   needlessly break discovery for all other printers.  This is the
+   reason for saying that if the semantics are not understood, the
+   advertising proxy MUST continue to publish the records that don't
+   point to an affected name.
+
+   For the case of TXT records, which have no formal semantic regarding
+   pointers to domain names, it is possible that an advertising proxy
+   implementation may understand the semantics for a specific use of the
+   TXT record for a specific service type.  In such cases, if the TXT
+   record in fact contains a pointer to an affected name, it should be
+   handled like any other RR that contains a pointer to an affected
+   name.
+
+2.5.  No Text-Encoding Translations
 
    Similar to a Discovery Proxy [RFC8766], an Advertising Proxy does no
    translation between text encodings [RFC6055].  Specifically, an
@@ -427,7 +540,7 @@ Table of Contents
    directly from the advertised data without any text-encoding
    translation.
 
-2.5.  No Support for Reconfirm
+2.6.  No Support for Reconfirm
 
    For network efficiency, Multicast DNS [RFC6762] uses fairly long
    record lifetimes (typically 75 minutes).  When a client is unable to
@@ -533,9 +646,9 @@ Table of Contents
 
    [TSR]      Lemon, T. and E. Dijk, "Multicast DNS conflict resolution
               using the Time Since Received (TSR) EDNS option", Work in
-              Progress, Internet-Draft, draft-ietf-dnssd-tsr-03, 6 July
-              2026, <https://datatracker.ietf.org/doc/html/draft-ietf-
-              dnssd-tsr-03>.
+              Progress, Internet-Draft, draft-ietf-dnssd-tsr-04, 31
+              October 2026, <https://datatracker.ietf.org/doc/html/
+              draft-ietf-dnssd-tsr-04>.
 
 5.2.  Informative References
 
@@ -577,9 +690,9 @@ Table of Contents
 
    [STUBNET]  Lemon, T., Hui, J., and E. Dijk, "Automatically Connecting
               Stub Networks to Unmanaged Infrastructure", Work in
-              Progress, Internet-Draft, draft-ietf-snac-simple-10, 6 May
-              2026, <https://datatracker.ietf.org/doc/html/draft-ietf-
-              snac-simple-10>.
+              Progress, Internet-Draft, draft-ietf-snac-simple-14, 11
+              November 2026, <https://datatracker.ietf.org/doc/html/
+              draft-ietf-snac-simple-14>.
 
    [ZC]       Cheshire, S. and D. H. Steinberg, "Zero Configuration
               Networking: The Definitive Guide", O'Reilly Media, Inc.,

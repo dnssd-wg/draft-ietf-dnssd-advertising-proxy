@@ -13,24 +13,24 @@
       using the DNS-SD Service Registration Protocol (SRP), using Multicast DNS. This allows
       legacy clients to discover services registered with SRP using Multicast DNS. 
     " name="description">
-<meta content="xml2rfc 3.34.0" name="generator">
+<meta content="xml2rfc 3.35.0" name="generator">
 <meta content="Multicast DNS" name="keyword">
 <meta content="DNS-Based Service Discovery" name="keyword">
 <meta content="draft-ietf-dnssd-advertising-proxy-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.34.0
-    Python 3.14.5
-    ConfigArgParse 1.7.5
+  xml2rfc 3.35.0
+    Python 3.14.10
+    ConfigArgParse 1.9.0
     google-i18n-address 3.1.1
     intervaltree 3.2.1
     Jinja2 3.1.6
     lxml 6.1.1
     natsort 8.4.0
-    platformdirs 4.10.0
+    platformdirs 4.14.3
     pycountry 24.6.1
     PyYAML 6.0.3
     requests 2.33.1
-    wcwidth 0.8.2
+    wcwidth 0.9.4
 -->
 <link href="draft-ietf-dnssd-advertising-proxy.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
@@ -66,7 +66,6 @@
   src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin-ext.woff2') format('woff2');
   unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
-
 @font-face {
   font-family: 'Lora';
   font-style: italic;
@@ -115,7 +114,6 @@
   src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin.woff2') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
-
 @font-face {
   font-family: 'Lora';
   font-style: normal;
@@ -180,7 +178,6 @@
   font-display: swap;
   src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin.woff2') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
 }
 
 @font-face {
@@ -1034,7 +1031,7 @@ svg {
   & :is([stroke="white"], [stroke^="#fff"]) {
     stroke: var(--background-color);
   }
-  & :is([fill="black"], [fill^="#000"], :not([fill])) {
+  & :is([fill="black"], [fill^="#000"], :not([fill], [fill] *)) {
     fill: var(--text-color);
   }
   & :is([fill="white"], [fill^="#fff"]) {
@@ -1164,6 +1161,9 @@ svg {
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1">
                 <p id="section-toc.1-1.1.2.1.1" class="keepWithNext"><a href="#section-1.1" class="auto internal xref">1.1</a>.  <a href="#name-conventions-and-terminology" class="internal xref">Conventions and Terminology Used in This Document</a></p>
 </li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.2">
+                <p id="section-toc.1-1.1.2.2.1" class="keepWithNext"><a href="#section-1.2" class="auto internal xref">1.2</a>.  <a href="#name-glossary" class="internal xref">Glossary</a></p>
+</li>
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2">
@@ -1173,7 +1173,7 @@ svg {
                 <p id="section-toc.1-1.2.2.1.1"><a href="#section-2.1" class="auto internal xref">2.1</a>.  <a href="#name-mapping-non-local-domain-na" class="internal xref">Mapping non-'.local.' domain names to '.local.'</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.1.2.1">
-                    <p id="section-toc.1-1.2.2.1.2.1.1" class="keepWithNext"><a href="#section-2.1.1" class="auto internal xref">2.1.1</a>.  <a href="#name-the-dns-dataset" class="internal xref">The DNS Dataset</a></p>
+                    <p id="section-toc.1-1.2.2.1.2.1.1"><a href="#section-2.1.1" class="auto internal xref">2.1.1</a>.  <a href="#name-the-dns-dataset" class="internal xref">The DNS Dataset</a></p>
 </li>
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.1.2.2">
                     <p id="section-toc.1-1.2.2.1.2.2.1"><a href="#section-2.1.2" class="auto internal xref">2.1.2</a>.  <a href="#name-how-to-rewrite-names" class="internal xref">How to rewrite names</a></p>
@@ -1187,10 +1187,13 @@ svg {
                 <p id="section-toc.1-1.2.2.3.1"><a href="#section-2.3" class="auto internal xref">2.3</a>.  <a href="#name-conflicts-and-stale-data" class="internal xref">Conflicts and Stale Data</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.4">
-                <p id="section-toc.1-1.2.2.4.1"><a href="#section-2.4" class="auto internal xref">2.4</a>.  <a href="#name-no-text-encoding-translatio" class="internal xref">No Text-Encoding Translations</a></p>
+                <p id="section-toc.1-1.2.2.4.1"><a href="#section-2.4" class="auto internal xref">2.4</a>.  <a href="#name-data-consistency-in-the-pre" class="internal xref">Data Consistency in the Presence of Conflicts</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.5">
-                <p id="section-toc.1-1.2.2.5.1"><a href="#section-2.5" class="auto internal xref">2.5</a>.  <a href="#name-no-support-for-reconfirm" class="internal xref">No Support for Reconfirm</a></p>
+                <p id="section-toc.1-1.2.2.5.1"><a href="#section-2.5" class="auto internal xref">2.5</a>.  <a href="#name-no-text-encoding-translatio" class="internal xref">No Text-Encoding Translations</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.6">
+                <p id="section-toc.1-1.2.2.6.1"><a href="#section-2.6" class="auto internal xref">2.6</a>.  <a href="#name-no-support-for-reconfirm" class="internal xref">No Support for Reconfirm</a></p>
 </li>
             </ul>
 </li>
@@ -1283,6 +1286,24 @@ svg {
           The DNS/mDNS/DNS-SD/SRP terminology from <span>[<a href="#RFC1034" class="cite xref">RFC1034</a>]</span>, <span>[<a href="#RFC2181" class="cite xref">RFC2181</a>]</span>,
           <span>[<a href="#RFC6762" class="cite xref">RFC6762</a>]</span>, <span>[<a href="#RFC6763" class="cite xref">RFC6763</a>]</span> and <span>[<a href="#RFC9665" class="cite xref">RFC9665</a>]</span> is used in this document.<a href="#section-1.1-2" class="pilcrow">¶</a></p>
 <p id="section-1.1-3">'dataset' is defined in <a href="#sec-dns-dataset" class="auto internal xref">Section 2.1.1</a>.<a href="#section-1.1-3" class="pilcrow">¶</a></p>
+</section>
+<section id="section-1.2">
+        <h3 id="name-glossary">
+<a href="#section-1.2" class="section-number selfRef">1.2. </a><a href="#name-glossary" class="section-name selfRef">Glossary</a>
+        </h3>
+<span class="break"></span><dl class="dlParallel" id="section-1.2-1">
+          <dt id="section-1.2-1.1">Advertised Zone</dt>
+          <dd style="margin-left: 1.5em" id="section-1.2-1.2">A zone that is being advertised over mDNS by an Advertising Proxy.<a href="#section-1.2-1.2" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.2-1.3">Owner Name</dt>
+          <dd style="margin-left: 1.5em" id="section-1.2-1.4">The domain name on which some DNS RR is discoverable. For example, a host with
+   an IP address of 2001:db8::1 might have an AAAA record on the name 'host.local'.
+   In this case, 'host.local' is the owner name of this AAAA record. See
+   <span><a href="https://rfc-editor.org/rfc/rfc1035#section-3.2.1" class="relref">Section 3.2.1</a> of [<a href="#RFC1035" class="cite xref">RFC1035</a>]</span>.<a href="#section-1.2-1.4" class="pilcrow">¶</a>
+</dd>
+        <dd class="break"></dd>
+</dl>
 </section>
 </section>
 <section id="section-2">
@@ -1525,10 +1546,102 @@ svg {
     Time Since Received (TSR) EDNS0 option <span>[<a href="#I-D.ietf-dnssd-tsr" class="cite xref">TSR</a>]</span>.<a href="#section-2.3-7" class="pilcrow">¶</a></p>
 </section>
 <section id="section-2.4">
-        <h3 id="name-no-text-encoding-translatio">
-<a href="#section-2.4" class="section-number selfRef">2.4. </a><a href="#name-no-text-encoding-translatio" class="section-name selfRef">No Text-Encoding Translations</a>
+        <h3 id="name-data-consistency-in-the-pre">
+<a href="#section-2.4" class="section-number selfRef">2.4. </a><a href="#name-data-consistency-in-the-pre" class="section-name selfRef">Data Consistency in the Presence of Conflicts</a>
         </h3>
 <p id="section-2.4-1">
+    It can be the case that a record for which there would be no mDNS conflict points to a name
+    in an advertised zone for which a name conflict exists. In such a situation, a name that is
+    provided under the authority of the zone points to a name that is provided by some other
+    authority. This can be a simple mistake, but also creates an opportunity for an attack.
+    Note that this section applies <em>only</em> to cases of name conflicts, and <em>not</em> to
+    cases of stale data.<a href="#section-2.4-1" class="pilcrow">¶</a></p>
+<p id="section-2.4-2">
+    The advertising proxy is expected to prevent situations where a name that refers to one
+    entity accidentally or intentionally winds up pointing to a name that refers to a different
+    entity, to the extent possible. There are some cases where this may not be possible.
+    One example is an RRtype that was either defined after the advertising proxy implementation
+    was done, or of which the implementor was not aware. Another example is an RR like the TXT
+    record, which can in principle contain one or more domain names, but which has no
+    formal semantics that specifies that it points to one or more domain names.<a href="#section-2.4-2" class="pilcrow">¶</a></p>
+<p id="section-2.4-3">
+    There are three combinations of owner name and resource record that need to be considered
+    here:<a href="#section-2.4-3" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-2.4-4">
+          <dt id="section-2.4-4.1">Type A:</dt>
+          <dd style="margin-left: 1.5em" id="section-2.4-4.2">Owner names for which publication of a record produced a name conflict<a href="#section-2.4-4.2" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-2.4-4.3">Type B:</dt>
+          <dd style="margin-left: 1.5em" id="section-2.4-4.4">Owner names for which one or more RRs point to another owner name of Type A<a href="#section-2.4-4.4" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-2.4-4.5">Type C:</dt>
+          <dd style="margin-left: 1.5em" id="section-2.4-4.6">
+      Owner names for which one or more RRs point to another owner name of Type B or Type
+      C.<a href="#section-2.4-4.6" class="pilcrow">¶</a>
+</dd>
+        <dd class="break"></dd>
+</dl>
+<p id="section-2.4-5">
+    For the purposes of this section, a name of type A, B or C is referred to as an "affected
+    name."  When an advertising proxy detects that an RR it is publishing points to an affected
+    name, it MUST stop publishing that RR. When an advertising proxy would normally begin to
+    publish such an RR, it MUST NOT do so.<a href="#section-2.4-5" class="pilcrow">¶</a></p>
+<p id="section-2.4-6">
+    The advertising proxy may have other records to publish on the same owner name. For such
+    records, if it knows that they refer to the same entity, it SHOULD NOT publish those
+    records. The reason not to publish them is twofold: first, to avoid a situation where the
+    consumer of the record winds up in an unexpected state because it discovers one record but
+    not another, and secondly to avoid sending useless multicast traffic.<a href="#section-2.4-6" class="pilcrow">¶</a></p>
+<p id="section-2.4-7">
+    However, advertising proxies are not required to have such knowledge for any particular
+    use case. If the advertising proxy does not know that such a relationship exists, it MUST
+    publish such records.<a href="#section-2.4-7" class="pilcrow">¶</a></p>
+<p id="section-2.4-8">
+    One of the primary current use cases for advertising proxies is DNSSD, so advertising
+    proxies MUST understand the semantic relationship between DNSSD records, specifically
+    the SRV and PTR records.<a href="#section-2.4-8" class="pilcrow">¶</a></p>
+<p id="section-2.4-9">
+    To illustrate the problem, consider a DNS-SD service advertisement for a printer service.
+    The service instance name might be 'laser-printer._ipp._tcp.local'. The service instance
+    will typically be the owner name of two records: an SRV and a TXT record.<a href="#section-2.4-9" class="pilcrow">¶</a></p>
+<p id="section-2.4-10">
+    The SRV record has another domain name as its target hostname. This target name in most
+    cases will appear in the same zone as the service instance name. So here it might be
+    'printer.local'. Suppose that when the advertising proxy advertises an AAAA record for
+    printer.local, it gets a name conflict.<a href="#section-2.4-10" class="pilcrow">¶</a></p>
+<p id="section-2.4-11">
+    In this situation, the SRV record is now pointing to some host _other_ than the printer.
+    This other host might be another printer, or it could easily be an attacker attempting to
+    capture print jobs. In order to prevent this, the advertising proxy does not publish the SRV
+    record. An advertising proxy that is aware of DNSSD semantics also does not publish the TXT
+    record, because it is on the affected name and is related.<a href="#section-2.4-11" class="pilcrow">¶</a></p>
+<p id="section-2.4-12">
+    But remember that a DNSSD service advertisement consists of a PTR record on the service name
+    ('_ipp._tcp.local') pointing to the service instance name. If more than one service of the
+    same type is advertised, there will be one PTR record per such service. These PTR records
+    all have the same owner name, but are referring to distinct services.<a href="#section-2.4-12" class="pilcrow">¶</a></p>
+<p id="section-2.4-13">
+    Whether an advertising proxy is aware of DNSSD semantics or not, it will not publish the PTR
+    record pointing to 'laser-printer._ipp._tcp.local' because it is a record pointing to an
+    affected name. However, if the advertising proxy did not understand the semantics of DNSSD
+    and removed all other PTR records because they're in the same RRset on the same owner name,
+    this would needlessly break discovery for all other printers. This is the reason for saying
+    that if the semantics are not understood, the advertising proxy MUST continue to publish the
+    records that don't point to an affected name.<a href="#section-2.4-13" class="pilcrow">¶</a></p>
+<p id="section-2.4-14">
+    For the case of TXT records, which have no formal semantic regarding pointers to domain
+    names, it is possible that an advertising proxy implementation may understand the semantics
+    for a specific use of the TXT record for a specific service type. In such cases, if the
+    TXT record in fact contains a pointer to an affected name, it should be handled like any
+    other RR that contains a pointer to an affected name.<a href="#section-2.4-14" class="pilcrow">¶</a></p>
+</section>
+<section id="section-2.5">
+        <h3 id="name-no-text-encoding-translatio">
+<a href="#section-2.5" class="section-number selfRef">2.5. </a><a href="#name-no-text-encoding-translatio" class="section-name selfRef">No Text-Encoding Translations</a>
+        </h3>
+<p id="section-2.5-1">
         Similar to a Discovery Proxy
         <span>[<a href="#RFC8766" class="cite xref">RFC8766</a>]</span>,
         an Advertising Proxy does no translation between
@@ -1554,13 +1667,13 @@ svg {
         translation to the Multicast DNS subsystem.
         Queries from peers on the configured multicast-capable
         interface are answered directly from the advertised data
-        without any text-encoding translation.<a href="#section-2.4-1" class="pilcrow">¶</a></p>
+        without any text-encoding translation.<a href="#section-2.5-1" class="pilcrow">¶</a></p>
 </section>
-<section id="section-2.5">
+<section id="section-2.6">
         <h3 id="name-no-support-for-reconfirm">
-<a href="#section-2.5" class="section-number selfRef">2.5. </a><a href="#name-no-support-for-reconfirm" class="section-name selfRef">No Support for Reconfirm</a>
+<a href="#section-2.6" class="section-number selfRef">2.6. </a><a href="#name-no-support-for-reconfirm" class="section-name selfRef">No Support for Reconfirm</a>
         </h3>
-<p id="section-2.5-1">
+<p id="section-2.6-1">
         For network efficiency,
         Multicast DNS
         <span>[<a href="#RFC6762" class="cite xref">RFC6762</a>]</span>
@@ -1574,16 +1687,16 @@ svg {
         that its cached data may be suspect,
         which causes the Multicast DNS subsystem
         to reissue queries, and remove the stale
-        records if the queries are not answered.<a href="#section-2.5-1" class="pilcrow">¶</a></p>
-<p id="section-2.5-2">
+        records if the queries are not answered.<a href="#section-2.6-1" class="pilcrow">¶</a></p>
+<p id="section-2.6-2">
         Similarly, when using unicast service discovery
         with a Discovery Proxy <span>[<a href="#RFC8766" class="cite xref">RFC8766</a>]</span>,
         the DNS Push Notifications <span>[<a href="#RFC8765" class="cite xref">RFC8765</a>]</span> protocol
         provides the RECONFIRM mechanism to signal that
         the Discovery Proxy should perform a local
         Multicast DNS reconfirm operation to
-        re-verify the validity of the records.<a href="#section-2.5-2" class="pilcrow">¶</a></p>
-<p id="section-2.5-3">
+        re-verify the validity of the records.<a href="#section-2.6-2" class="pilcrow">¶</a></p>
+<p id="section-2.6-3">
         When an Advertising Proxy is used,
         to support legacy clients that only implement Multicast DNS,
         reconfirm operations have no effect.
@@ -1616,8 +1729,8 @@ svg {
         registered records has meanwhile failed or disconnected from the network.
         Particularly with services provided by sleepy battery-powered devices,
         the service registry does not know what active duty cycle
-        any given service is expected to provide.<a href="#section-2.5-3" class="pilcrow">¶</a></p>
-<p id="section-2.5-4">
+        any given service is expected to provide.<a href="#section-2.6-3" class="pilcrow">¶</a></p>
+<p id="section-2.6-4">
         Consequently, reconfirm operations are not supported
         with an Advertising Proxy using Multicast DNS.
         In cases where use of the reconfirm mechanism
@@ -1629,7 +1742,7 @@ svg {
         (A future update to the Service Registration Protocol
         <span>[<a href="#RFC9665" class="cite xref">RFC9665</a>]</span>
         could consider ways that this unambiguous signal
-        can be used to trigger expedited removal of stale data.)<a href="#section-2.5-4" class="pilcrow">¶</a></p>
+        can be used to trigger expedited removal of stale data.)<a href="#section-2.6-4" class="pilcrow">¶</a></p>
 </section>
 </section>
 <section id="section-3">
@@ -1696,7 +1809,7 @@ svg {
 <dd class="break"></dd>
 <dt id="I-D.ietf-dnssd-tsr">[TSR]</dt>
       <dd>
-<span class="refAuthor">Lemon, T.</span> and <span class="refAuthor">E. Dijk</span>, <span class="refTitle">"Multicast DNS conflict resolution using the Time Since Received (TSR) EDNS option"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-dnssd-tsr-03</span>, <time datetime="2026-07-06" class="refDate">6 July 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-dnssd-tsr-03">https://datatracker.ietf.org/doc/html/draft-ietf-dnssd-tsr-03</a>&gt;</span>. </dd>
+<span class="refAuthor">Lemon, T.</span> and <span class="refAuthor">E. Dijk</span>, <span class="refTitle">"Multicast DNS conflict resolution using the Time Since Received (TSR) EDNS option"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-dnssd-tsr-04</span>, <time datetime="2026-10-31" class="refDate">31 October 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-dnssd-tsr-04">https://datatracker.ietf.org/doc/html/draft-ietf-dnssd-tsr-04</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 </dl>
 </section>
@@ -1735,7 +1848,7 @@ svg {
 <dd class="break"></dd>
 <dt id="I-D.ietf-snac-simple">[STUBNET]</dt>
         <dd>
-<span class="refAuthor">Lemon, T.</span>, <span class="refAuthor">Hui, J.</span>, and <span class="refAuthor">E. Dijk</span>, <span class="refTitle">"Automatically Connecting Stub Networks to Unmanaged Infrastructure"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-snac-simple-10</span>, <time datetime="2026-05-06" class="refDate">6 May 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-snac-simple-10">https://datatracker.ietf.org/doc/html/draft-ietf-snac-simple-10</a>&gt;</span>. </dd>
+<span class="refAuthor">Lemon, T.</span>, <span class="refAuthor">Hui, J.</span>, and <span class="refAuthor">E. Dijk</span>, <span class="refTitle">"Automatically Connecting Stub Networks to Unmanaged Infrastructure"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-snac-simple-14</span>, <time datetime="2026-11-11" class="refDate">11 November 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-snac-simple-14">https://datatracker.ietf.org/doc/html/draft-ietf-snac-simple-14</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="ZC">[ZC]</dt>
       <dd>
