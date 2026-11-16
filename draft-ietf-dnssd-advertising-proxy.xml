@@ -154,6 +154,18 @@
         </t>
         <t>'dataset' is defined in <xref target="sec-dns-dataset"/>.</t>
       </section>
+      <section>
+	<name>Glossary</name>
+	<dl>
+	  <dt>Advertised Zone</dt>
+	  <dd>A zone that is being advertised over mDNS by an Advertising Proxy.</dd>
+	  <dt>Owner Name</dt>
+	  <dd>The domain name on which some DNS RR is discoverable. For example, a host with
+	  an IP address of 2001:db8::1 might have an AAAA record on the name 'host.local'.
+	  In this case, 'host.local' is the owner name of this AAAA record. See
+	  <xref target="RFC1035" section="3.2.1" sectionFormat="of"/>.</dd>
+	</dl>
+      </section>
     </section>
 
     <section numbered="true">
@@ -414,6 +426,103 @@
   <t>
     To prevent stale data winning over updated data, an Advertising Proxy MUST support the
     Time Since Received (TSR) EDNS0 option <xref target="I-D.ietf-dnssd-tsr"/>.
+  </t>
+</section>
+<section>
+  <name>Data Consistency in the Presence of Conflicts</name>
+  <t>
+    It can be the case that a record for which there would be no mDNS conflict points to a name
+    in an advertised zone for which a name conflict exists. In such a situation, a name that is
+    provided under the authority of the zone points to a name that is provided by some other
+    authority. This can be a simple mistake, but also creates an opportunity for an attack.
+    Note that this section applies <em>only</em> to cases of name conflicts, and <em>not</em> to
+    cases of stale data.
+  </t>
+  <t>
+    The advertising proxy is expected to prevent situations where a name that refers to one
+    entity accidentally or intentionally winds up pointing to a name that refers to a different
+    entity, to the extent possible. There are some cases where this may not be possible.
+    One example is an RRtype that was either defined after the advertising proxy implementation
+    was done, or of which the implementor was not aware. Another example is an RR like the TXT
+    record, which can in principle contain one or more domain names, but which has no
+    formal semantics that specifies that it points to one or more domain names.
+  </t>
+  <t>
+    There are three combinations of owner name and resource record that need to be considered
+    here:
+  </t>
+  <dl>
+    <dt>Type A:</dt>
+    <dd>Owner names for which publication of a record produced a name conflict</dd>
+    <dt>Type B:</dt>
+    <dd>Owner names for which one or more RRs point to another owner name of Type A</dd>
+    <dt>Type C:</dt>
+    <dd>
+      Owner names for which one or more RRs point to another owner name of Type B or Type
+      C.</dd>
+  </dl>
+  <t>
+    For the purposes of this section, a name of type A, B or C is referred to as an "affected
+    name."  When an advertising proxy detects that an RR it is publishing points to an affected
+    name, it MUST stop publishing that RR. When an advertising proxy would normally begin to
+    publish such an RR, it MUST NOT do so.
+  </t>
+  <t>
+    The advertising proxy may have other records to publish on the same owner name. For such
+    records, if it knows that they refer to the same entity, it SHOULD NOT publish those
+    records. The reason not to publish them is twofold: first, to avoid a situation where the
+    consumer of the record winds up in an unexpected state because it discovers one record but
+    not another, and secondly to avoid sending useless multicast traffic.
+  </t>
+  <t>
+    However, advertising proxies are not required to have such knowledge for any particular
+    use case. If the advertising proxy does not know that such a relationship exists, it MUST
+    publish such records.
+  </t>
+  <t>
+    One of the primary current use cases for advertising proxies is DNSSD, so advertising
+    proxies MUST understand the semantic relationship between DNSSD records, specifically
+    the SRV and PTR records.
+  </t>
+  <t>
+    To illustrate the problem, consider a DNS-SD service advertisement for a printer service.
+    The service instance name might be 'laser-printer._ipp._tcp.local'. The service instance
+    will typically be the owner name of two records: an SRV and a TXT record.
+  </t>
+  <t>
+    The SRV record has another domain name as its target hostname. This target name in most
+    cases will appear in the same zone as the service instance name. So here it might be
+    'printer.local'. Suppose that when the advertising proxy advertises an AAAA record for
+    printer.local, it gets a name conflict.
+  </t>
+  <t>
+    In this situation, the SRV record is now pointing to some host _other_ than the printer.
+    This other host might be another printer, or it could easily be an attacker attempting to
+    capture print jobs. In order to prevent this, the advertising proxy does not publish the SRV
+    record. An advertising proxy that is aware of DNSSD semantics also does not publish the TXT
+    record, because it is on the affected name and is related.
+  </t>
+  <t>
+    But remember that a DNSSD service advertisement consists of a PTR record on the service name
+    ('_ipp._tcp.local') pointing to the service instance name. If more than one service of the
+    same type is advertised, there will be one PTR record per such service. These PTR records
+    all have the same owner name, but are referring to distinct services.
+  </t>
+  <t>
+    Whether an advertising proxy is aware of DNSSD semantics or not, it will not publish the PTR
+    record pointing to 'laser-printer._ipp._tcp.local' because it is a record pointing to an
+    affected name. However, if the advertising proxy did not understand the semantics of DNSSD
+    and removed all other PTR records because they're in the same RRset on the same owner name,
+    this would needlessly break discovery for all other printers. This is the reason for saying
+    that if the semantics are not understood, the advertising proxy MUST continue to publish the
+    records that don't point to an affected name.
+  </t>
+  <t>
+    For the case of TXT records, which have no formal semantic regarding pointers to domain
+    names, it is possible that an advertising proxy implementation may understand the semantics
+    for a specific use of the TXT record for a specific service type. In such cases, if the
+    TXT record in fact contains a pointer to an affected name, it should be handled like any
+    other RR that contains a pointer to an affected name.
   </t>
 </section>
 <section numbered="true">
